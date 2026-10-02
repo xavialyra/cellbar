@@ -5,27 +5,38 @@
 Run these commands from the project root. Launch Cellbar inside a Wayland
 session whose compositor supports layer-shell.
 
-## Build
+## Installation
 
-Install mise, a C build toolchain, pkg-config, and the PipeWire development
-libraries using your system's package manager. Font discovery uses `fc-list`
-from Fontconfig; install at least one text font.
+### Option A: Direct Download (Recommended)
+
+Download the pre-compiled binary directly to your local bin path:
 
 ```sh
-mise install
-mise run build
+curl -sSL https://github.com/xavialyra/cellbar/releases/latest/download/cellbar-linux-x86_64 -o ~/.local/bin/cellbar
+chmod +x ~/.local/bin/cellbar
 ```
 
-The executable is `target/release/cellbar`.
+### Option B: Build from Source
+
+Install mise (or Rust/Cargo), a C compiler (`gcc`), `pkg-config`, `libsystemd`, and PipeWire development libraries using your system's package manager:
+
+```sh
+git clone https://github.com/xavialyra/cellbar.git
+cd cellbar
+cargo build --release
+# Or using mise: mise run build
+
+install -Dm755 target/release/cellbar ~/.local/bin/cellbar
+```
 
 ## Initialize and run
 
 Initialize a ready-to-run configuration, validate it, and launch:
 
 ```sh
-./target/release/cellbar init
-./target/release/cellbar check
-./target/release/cellbar
+cellbar init
+cellbar check
+cellbar
 ```
 
 `init` writes a starter configuration to `$XDG_CONFIG_HOME/cellbar` (or
@@ -37,42 +48,31 @@ The embedded starter configuration uses the minimal template:
 - Zero external scripts, zero icon font requirements, zero shell forks.
 - Ready to customize immediately.
 
-## Try examples without installing
+## Presets and examples
 
-You can test any configuration directly by specifying its path with `-c`:
-
-```sh
-# Minimal starter setup
-./target/release/cellbar -c examples/minimal/config.toml
-
-# Classic flat statusbar
-./target/release/cellbar -c examples/flat/config.toml
-
-# Modern capsule pill islands
-./target/release/cellbar -c examples/capsules/config.toml
-```
+Ready-made configuration presets (`flat` and `capsules`) with complete layout, theme, and component manifests are available in the [`examples/`](../examples) directory of the repository.
 
 ## Validate and reload
 
 After editing your configuration, validate it before restarting:
 
 ```sh
-./target/release/cellbar check
+cellbar check
 ```
 
 While Cellbar is running in the background, reload it seamlessly without losing
 window focus or tearing:
 
 ```sh
-./target/release/cellbar reload
+cellbar reload
 ```
 
 An invalid reload leaves the active configuration in place. Inspect bar status
 and active displays with:
 
 ```sh
-./target/release/cellbar status
-./target/release/cellbar list
+cellbar status
+cellbar list
 ```
 
 Other CLI commands are described in [Control](configuration.md#control).

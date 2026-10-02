@@ -61,6 +61,12 @@ jobs:
           tar -czvf "target/${ARCHIVE_NAME}.tar.gz" -C target/staging "${ARCHIVE_NAME}"
           cd target
           sha256sum "${ARCHIVE_NAME}.tar.gz" > "${ARCHIVE_NAME}.tar.gz.sha256"
+          # Also provide canonical names for stable permalink downloads
+          cp "${ARCHIVE_NAME}.tar.gz" "cellbar-x86_64-unknown-linux-gnu.tar.gz"
+          cp "${ARCHIVE_NAME}.tar.gz.sha256" "cellbar-x86_64-unknown-linux-gnu.tar.gz.sha256"
+          # Standalone binary for direct curl downloads
+          cp release/cellbar cellbar-linux-x86_64
+          chmod +x cellbar-linux-x86_64
           cd ..
 
           echo "archive=target/${ARCHIVE_NAME}.tar.gz" >> "$GITHUB_OUTPUT"
@@ -70,8 +76,11 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
+            target/cellbar-linux-x86_64
             ${{ steps.package.outputs.archive }}
             ${{ steps.package.outputs.checksum }}
+            target/cellbar-x86_64-unknown-linux-gnu.tar.gz
+            target/cellbar-x86_64-unknown-linux-gnu.tar.gz.sha256
           generate_release_notes: true
           draft: false
           prerelease: false

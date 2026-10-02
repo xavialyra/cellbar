@@ -60,36 +60,34 @@ Heap allocations and process RSS are continuously measured and guarded with inte
 
 ---
 
-## Quick Look
-
-```toml
-# A minimal bar configuration: ~/.config/cellbar/config.toml
-# Declarative bar layout with built-in or custom components
-show = ["main"]
-
-[bar.main]
-theme = "theme.toml"
-position = "top"
-left = ["window"]
-center = ["clock"]
-right = ["cpu", "[  ]", "memory"]
-```
-
----
-
 ## Quickstart
 
-### 1. Build from Source
+### 1. Installation
 
-Build using [mise](https://mise.jdx.dev/) or standard Cargo:
+#### Option A: Direct Download (Recommended)
+
+Download the pre-compiled binary directly to your local bin path:
 
 ```sh
-# Using mise
-mise install
-mise run build
+curl -sSL https://github.com/xavialyra/cellbar/releases/latest/download/cellbar-linux-x86_64 -o ~/.local/bin/cellbar
+chmod +x ~/.local/bin/cellbar
+```
 
-# Or using Cargo directly
+#### Option B: Build from Source
+
+Requirements: Rust toolchain (1.80+), C compiler (`gcc`), `pkg-config`, `libsystemd`, `libpipewire-0.3`, and `fontconfig`.
+
+```sh
+# Clone repository
+git clone https://github.com/xavialyra/cellbar.git
+cd cellbar
+
+# Build release binary (using Cargo or mise)
 cargo build --release
+# Or: mise run build
+
+# Install to ~/.local/bin
+install -Dm755 target/release/cellbar ~/.local/bin/cellbar
 ```
 
 ### 2. Initialize and Launch
@@ -98,31 +96,16 @@ Generate a ready-to-run starter configuration with clock, CPU, memory, and activ
 
 ```sh
 # Initialize starter config in ~/.config/cellbar
-./target/release/cellbar init
+cellbar init
 
 # Validate configuration
-./target/release/cellbar check
+cellbar check
 
 # Run Cellbar
-./target/release/cellbar
+cellbar
 ```
 
-### 3. Try Ready-Made Presets
-
-Preview built-in setups without touching your existing configuration:
-
-```sh
-# Minimal starter preset
-./target/release/cellbar -c examples/minimal/config.toml
-
-# Classic flat statusbar
-./target/release/cellbar -c examples/flat/config.toml
-
-# Floating capsule pill islands
-./target/release/cellbar -c examples/capsules/config.toml
-```
-
-See the [Quickstart Guide](docs/quickstart.md) for full setup instructions and system dependencies.
+For more examples and theme ideas, see the presets (`flat` and `capsules`) in the [`examples/`](examples) directory. See the [Quickstart Guide](docs/quickstart.md) for full setup instructions and system dependencies.
 
 ---
 
