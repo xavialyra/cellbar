@@ -1,0 +1,31 @@
+# Maintainer: xavialyra <xavialyra@gmail.com>
+pkgname=cellbar-bin
+pkgver=0.1.0
+pkgrel=1
+pkgdesc="A lightweight, terminal-inspired Wayland status bar engineered for performance and precision (precompiled binary)"
+arch=('x86_64')
+url="https://github.com/xavialyra/cellbar"
+license=('MIT')
+depends=('glibc' 'pipewire' 'systemd-libs')
+provides=('cellbar')
+conflicts=('cellbar' 'cellbar-git')
+source=("${pkgname}-${pkgver}.tar.gz::https://github.com/xavialyra/cellbar/releases/download/v${pkgver}/cellbar-v${pkgver}-x86_64-unknown-linux-gnu.tar.gz")
+sha256sums=('SKIP') # Update with sha256sum from GitHub Release
+
+package() {
+    cd "cellbar-v${pkgver}-x86_64-unknown-linux-gnu"
+
+    install -Dm755 cellbar "$pkgdir/usr/bin/cellbar"
+    if [ -f cellbar-tray ]; then
+        install -Dm755 cellbar-tray "$pkgdir/usr/bin/cellbar-tray"
+    fi
+
+    # Documentation and license
+    install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+    install -Dm644 README.md "$pkgdir/usr/share/doc/$pkgname/README.md"
+
+    # Examples
+    if [ -d examples ]; then
+        find examples -type f -exec install -Dm644 "{}" "$pkgdir/usr/share/doc/$pkgname/{}" \;
+    fi
+}

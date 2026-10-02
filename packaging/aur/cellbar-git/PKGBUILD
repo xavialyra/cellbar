@@ -1,0 +1,52 @@
+# Maintainer: xavialyra <xavialyra@gmail.com>
+pkgname=cellbar-git
+pkgver=0.1.0.r0.g0000000
+pkgrel=1
+pkgdesc="A lightweight, terminal-inspired Wayland status bar engineered for performance and precision (VCS master)"
+arch=('x86_64')
+url="https://github.com/xavialyra/cellbar"
+license=('MIT')
+depends=('glibc' 'pipewire' 'systemd-libs')
+makedepends=('git' 'cargo' 'pkgconf')
+provides=('cellbar')
+conflicts=('cellbar' 'cellbar-bin')
+source=("git+https://github.com/xavialyra/cellbar.git")
+sha256sums=('SKIP')
+
+pkgver() {
+    cd cellbar
+    git describe --long --tags --abbrev=7 2>/dev/null | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g' ||
+    printf "0.1.0.r%s.g%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short=7 HEAD)"
+}
+
+prepare() {
+    cd cellbar
+    cargo fetch --locked --target "$CARCH-unknown-linux-gnu"
+}
+
+build() {
+    cd cellbar
+    export CARGO_TARGET_DIR=target
+    cargo build --frozen --release --all-targets
+}
+
+check() {
+    cd cellbar
+    cargo test --frozen
+}
+
+package() {
+    cd cellbar
+
+    install -Dm755 target/release/cellbar "$pkgdir/usr/bin/cellbar"
+    if [ -f examples/flat/components/tray/cellbar-tray ]; then
+        install -Dm755 examples/flat/components/tray/cellbar-tray "$pkgdir/usr/bin/cellbar-tray"
+    fi
+
+    install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+    install -Dm644 README.md "$pkgdir/usr/share/doc/$pkgname/README.md"
+
+    if [ -d examples ]; then
+        find examples -type f -exec install -Dm644 "{}" "$pkgdir/usr/share/doc/$pkgname/{}" \;
+    fi
+}

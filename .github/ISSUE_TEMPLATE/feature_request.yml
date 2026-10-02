@@ -1,0 +1,33 @@
+name: Feature Request
+description: Propose a new feature, native provider, or UX enhancement for Cellbar
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        We welcome ideas that keep Cellbar fast, lightweight, and aligned with terminal-grid principles!
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or Motivation
+      description: Is your feature request related to a specific limitation or pain point?
+    validations:
+      required: true
+  - type: textarea
+    id: proposed_solution
+    attributes:
+      label: Proposed Solution / Design
+      description: Describe what you would like Cellbar to do, including any suggested config syntax or behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Any alternative solutions or workarounds you have considered?
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+      description: Add any mockups, screenshots, or protocol references (e.g. Wayland protocol extensions).

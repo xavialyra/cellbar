@@ -1,0 +1,53 @@
+name: Bug Report
+description: Report a reproducible bug or unexpected behavior in Cellbar
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report an issue! Please ensure you have tested with the latest release or main branch.
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the Bug
+      description: A clear and concise description of what the problem is.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction Steps
+      description: How can someone reproduce this bug?
+      placeholder: |
+        1. Start Cellbar with configuration '...'
+        2. Perform action '...'
+        3. See error
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+    validations:
+      required: true
+  - type: textarea
+    id: config
+    attributes:
+      label: Cellbar Configuration
+      description: Paste the minimal relevant `config.toml` that triggers the issue (run `cellbar check` first).
+      render: toml
+  - type: textarea
+    id: environment
+    attributes:
+      label: System & Environment Information
+      description: Please share your environment details.
+      value: |
+        - OS / Distro:
+        - Kernel Version: `uname -r`
+        - Wayland Compositor (and version): e.g., Hyprland 0.44, Sway 1.9
+        - Cellbar Version: `cellbar --version` (or commit hash)
+        - Relevant logs / error messages:
+    validations:
+      required: true
