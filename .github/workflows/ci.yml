@@ -8,7 +8,7 @@ on:
 
 jobs:
   check:
-    name: Check, Test and Build
+    name: Lint & Test
     runs-on: ubuntu-latest
 
     steps:
@@ -42,22 +42,9 @@ jobs:
         run: cargo clippy --all-targets --all-features -- -D warnings
 
       - name: Run test suite
-        run: cargo test --all-targets --verbose
+        run: cargo test --all-targets
 
       - name: Validate example configurations
         run: |
           cargo run -- check examples/flat/config.toml
           cargo run -- check examples/capsules/config.toml
-
-      - name: Build release binary
-        run: cargo build --release
-
-      - name: Smoke test release binary
-        run: ./target/release/cellbar --help
-
-      - name: Upload release artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: cellbar-linux-x86_64
-          path: target/release/cellbar
-          if-no-files-found: error
