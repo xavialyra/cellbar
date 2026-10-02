@@ -9,6 +9,15 @@ Cellbar renders status information onto an explicit character cell grid with sub
 
 ---
 
+<p align="center">
+  <img src="assets/screenshot-1.png" alt="Cellbar Flat Preset" width="100%" />
+</p>
+<p align="center">
+  <img src="assets/screenshot-2.png" alt="Cellbar Capsules Preset" width="100%" />
+</p>
+
+---
+
 ## Highlights
 
 - **Ultra-Low Resource Footprint**: Tiny ~3.3 MB standalone binary with ~8 MB resident memory (~1.3 MB unique private USS), zero heavy GUI toolkits (no GTK, Qt, or Electron), and battery-friendly event-driven sleep.
