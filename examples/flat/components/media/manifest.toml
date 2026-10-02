@@ -1,0 +1,46 @@
+[provider]
+program = "./run.sh"
+args = [
+    "--icon", "${setting.icon}",
+    "--event", "${context}",
+    "--scope-style", "${setting.scope_style}",
+    "--cover-width", "${setting.cover_width}",
+    "--cover-align", "${setting.cover_align}",
+    "--text-max-width", "${setting.text_max_width}",
+    "--play-icon", "${setting.play_icon}",
+    "--pause-icon", "${setting.pause_icon}",
+    "--playing-style", "${setting.playing_style}",
+    "--paused-style", "${setting.paused_style}",
+]
+timeout = "2s"
+
+[triggers]
+on_activate = true
+every = "30s"
+
+[[triggers.on_dbus]]
+id = "mpris-properties"
+bus = "session"
+match_rule = "type='signal',interface='org.freedesktop.DBus.Properties',member='PropertiesChanged',path_namespace='/org/mpris/MediaPlayer2'"
+
+[[triggers.on_dbus]]
+id = "mpris-owner"
+bus = "session"
+match_rule = "type='signal',interface='org.freedesktop.DBus',member='NameOwnerChanged',arg0namespace='org.mpris.MediaPlayer2'"
+
+[settings]
+icon = "󰝚"
+scope_style = ""
+cover_width = 2
+cover_align = "left"
+# Maximum terminal-cell width of the combined artist/title text.
+text_max_width = 40
+play_icon = ""
+pause_icon = "󰏤"
+playing_style = "peach"
+paused_style = "muted"
+
+[actions]
+"scroll_up" = "playerctl volume 0.05+"
+"scroll_down" = "playerctl volume 0.05-"
+"click" = "playerctl play-pause"

@@ -1,0 +1,26 @@
+# Active window title from Wayland. No external program is required.
+# A compositor without the supported toplevel protocol may produce no title.
+# Wayland event fields are in context.message (not context.data):
+# title, app_id, activated. context can initially be null, so guard message.
+# Return an empty string when no title exists to hide the component content.
+# settings is [settings]; context is the latest event; state holds events by
+# trigger ID, for example state["active-window"].
+[provider]
+expression = '''
+let title = context?.message?.title ?? "";
+title != "" ? render(settings.template, { title }) : ""
+'''
+
+[triggers]
+# Evaluate once on activation, then update on window events.
+on_activate = true
+
+[[triggers.on_wayland]]
+id = "active-window"
+event = "toplevel"
+
+[settings]
+# Limit only the title text in terminal cells; long titles gain an ellipsis.
+# max = maximum width; min = minimum width; left/center/right = alignment.
+# Remove min=20 if you do not want short titles padded with spaces.
+template = "[{title}](@window max=50 min=20 left)"

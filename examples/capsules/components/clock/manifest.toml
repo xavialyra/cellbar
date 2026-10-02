@@ -1,0 +1,15 @@
+[provider]
+expression = 'render(settings.template, { time: strftime(context.data.timestamp, settings.strftime) })'
+
+[[triggers.on_source]]
+id = "tick"
+source = "clock"
+event = "tick"
+
+[settings]
+strftime = "%H:%M  %a %b %d"
+template = "#clock(@pill){ [  ][󰥔 ](@blue)[{time}][  ] }"
+interval = "30s"
+
+[actions]
+"click" = "gnome-calendar"

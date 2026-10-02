@@ -1,0 +1,35 @@
+# Capsule-style status bar example with floating islands and embedded badge highlights.
+# Run from project root: cargo run -- -c examples/capsules/config.toml
+#
+# A bar is always a top-layer exclusive surface. Manual visibility is controlled
+# with `cellbar show`, `cellbar hide`, and `cellbar toggle`.
+
+show = ["top"]
+
+[bar.top]
+theme = "theme.toml"
+height = 32
+position = "top"
+margin = { top = 8, right = 10, bottom = 0, left = 10 }
+left = [
+    "workspaces",
+    "[ ]",
+    "window",
+]
+center = ["clock"]
+right = [
+    # Package update counts depend on the distribution (checkupdates or apt).
+    # "updates",
+    # "[ ]",
+    "media",
+    "[ ]",
+    # "volume",
+    "[ ]",
+    "network",
+    "[ ]",
+    "memory",
+    "[ ]",
+    "cpu",
+    "[ ]",
+    "battery",
+]

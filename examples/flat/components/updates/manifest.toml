@@ -1,0 +1,11 @@
+[provider]
+program = "./run.sh"
+args = ["--icon", "${setting.icon}"]
+timeout = "30s"
+
+[triggers]
+on_activate = true
+every = "5m"
+
+[settings]
+icon = "󰏖"

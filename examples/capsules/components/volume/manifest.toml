@@ -1,0 +1,36 @@
+[provider]
+program = "./run.sh"
+args = [
+    "--device", "${setting.device}",
+    "--output", "${setting.output}",
+    "--show-mute", "${setting.show_mute}",
+    "--icon", "${setting.icon}",
+    "--icons", "${setting.icons}",
+    "--mute-icon", "${setting.mute_icon}",
+    "--scope-style", "${setting.scope_style}",
+    "--icon-style", "${setting.icon_style}",
+]
+timeout = "2s"
+
+[triggers]
+on_activate = true
+
+[[triggers.on_pipewire]]
+id = "volume"
+event = "volume"
+
+[settings]
+device = "@DEFAULT_AUDIO_SINK@"
+output = "percent"
+show_mute = true
+icon = ""
+icons = "󰕿,󰖀,󰕾"
+mute_icon = "󰝟"
+scope_style = "pill"
+icon_style = "peach"
+
+[actions]
+"click" = "pavucontrol"
+"right_click" = { command = "wpctl", args = ["set-mute", "${setting.device}", "toggle"] }
+"scroll_up" = { command = "wpctl", args = ["set-volume", "-l", "1.0", "${setting.device}", "5%+"], debounce = "50ms" }
+"scroll_down" = { command = "wpctl", args = ["set-volume", "${setting.device}", "5%-"], debounce = "50ms" }

@@ -1,0 +1,14 @@
+[provider]
+expression = 'render(settings.template, { used: format_size(context.data.used_kib), total: format_size(context.data.total_kib), percent: format_percent(context.data.percent) })'
+
+[[triggers.on_source]]
+id = "sample"
+source = "memory"
+event = "sample"
+
+[settings]
+template = "#memory(@pill){ [  ][󰘚 ](@teal)[{used}][  ] }"
+interval = "10s"
+
+[actions]
+"click" = "sh -c 't=\"${TERMINAL:-$(command -v footclient || command -v foot || command -v alacritty || command -v kitty || command -v wezterm || command -v ghostty || command -v xterm)}\"; [ -n \"$t\" ] && exec \"$t\" -e btop --filter mem'"

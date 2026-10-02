@@ -1,0 +1,26 @@
+[provider]
+program = "./cellbar-tray"
+args = [
+    "--icon-mode", "${setting.icon_mode}",
+    "--icon-width", "${setting.icon_width}",
+    "--icon-fit", "${setting.icon_fit}",
+    "--spacing", "${setting.spacing}",
+    "--hide-passive", "${setting.hide_passive}",
+]
+
+[triggers]
+on_activate = true
+
+[settings]
+icon_mode = "image"
+icon_width = 2
+icon_fit = "contain"
+spacing = "[ ]"
+hide_passive = true
+
+[actions]
+"click:tray:*" = { command = "./cellbar-tray", args = ["--action", "activate", "${target}"] }
+"right_click:tray:*" = { command = "./cellbar-tray", args = ["--action", "context", "${target}"] }
+"middle_click:tray:*" = { command = "./cellbar-tray", args = ["--action", "secondary", "${target}"] }
+"scroll_up:tray:*" = { command = "./cellbar-tray", args = ["--action", "scroll_up", "${target}"] }
+"scroll_down:tray:*" = { command = "./cellbar-tray", args = ["--action", "scroll_down", "${target}"] }

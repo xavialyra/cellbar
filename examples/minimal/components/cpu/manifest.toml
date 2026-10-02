@@ -1,0 +1,17 @@
+# Built-in Linux CPU statistics: no external program required.
+# Source events expose { source: "cpu", event: "sample", data: { percent: ... } }.
+# Read context.data.percent; settings contains the values under [settings].
+# For multiple triggers, state.<trigger-id> stores each trigger's last context.
+[provider]
+expression = 'render(settings.template, { percent: format_percent(context.data.percent) })'
+
+[[triggers.on_source]]
+id = "sample"
+source = "cpu"
+event = "sample"
+
+[settings]
+# {percent} is overall CPU usage, not an individual core's usage.
+template = "[CPU {percent}](@cpu)"
+# Usage is computed between samples; shorten for more frequent updates.
+interval = "3s"

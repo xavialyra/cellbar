@@ -1,0 +1,21 @@
+[provider]
+program = "./run.sh"
+args = [
+    "--active-icon", "${setting.active_icon}",
+    "--idle-icon", "${setting.idle_icon}",
+    "--event", "${context}",
+]
+timeout = "2s"
+
+[triggers]
+on_activate = true
+every = "30s"
+
+[[triggers.on_dbus]]
+id = "session-properties"
+bus = "system"
+match_rule = "type='signal',interface='org.freedesktop.DBus.Properties',member='PropertiesChanged',path_namespace='/org/freedesktop/login1/session',arg0='org.freedesktop.login1.Session'"
+
+[settings]
+active_icon = "󰾫"
+idle_icon = "󰾪"

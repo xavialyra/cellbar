@@ -1,0 +1,88 @@
+[font]
+families = [
+    { "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏" = "JetBrainsMono Nerd Font" },
+    "JetBrainsMono Nerd Font",
+    "Noto Sans Mono CJK JP"
+]
+size = 14.0
+cell_width_adjust = 0
+# line_height = 1.25
+
+[colors]
+base = "#181825ee"
+surface = "#1e1e2e"
+crust = "#11111b"
+text = "#cdd6f4"
+subtext = "#a6adc8"
+muted = "#6c7086"
+subtle = "#45475a"
+accent = "#89b4fa"
+warning = "#f9e2af"
+critical = "#f38ba8"
+success = "#a6e3a1"
+
+[surface]
+background = "base"
+padding = { horizontal = 16, vertical = 7 }
+radius = 5
+
+[text]
+foreground = "text"
+
+[styles.accent]
+foreground = "crust"
+background = "accent"
+bold = true
+
+[styles.warning]
+foreground = "warning"
+bold = true
+
+[styles.critical]
+foreground = "critical"
+bold = true
+
+# Normal status information stays neutral; color is reserved for selection
+# and warnings/errors.
+[styles.success]
+foreground = "subtext"
+
+[styles.muted]
+foreground = "muted"
+
+[styles.separator]
+foreground = "subtle"
+
+[styles.tray]
+foreground = "text"
+
+[styles.clock]
+foreground = "text"
+bold = true
+
+[styles.battery]
+foreground = "subtext"
+
+[styles.backlight]
+foreground = "subtext"
+
+[styles.blue]
+foreground = "subtext"
+
+[styles.peach]
+foreground = "subtext"
+
+[styles.subtext]
+foreground = "subtext"
+
+[styles.window]
+foreground = "subtext"
+
+[styles.memory]
+foreground = "subtext"
+
+[styles.cpu]
+foreground = "subtext"
+
+[styles.ws_skipped]
+foreground = "muted"

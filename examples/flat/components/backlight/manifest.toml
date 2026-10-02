@@ -1,0 +1,15 @@
+[provider]
+expression = 'render(settings.template, { icon: context.data.icon, percent: format_percent(context.data.percent), device: context.data.device })'
+
+[[triggers.on_source]]
+id = "sample"
+source = "backlight"
+event = "sample"
+
+[settings]
+template = "[{icon} {percent}](@backlight)"
+interval = "60s"
+
+[actions]
+"scroll_up" = { command = "sh", args = ["-c", "brightnessctl set +5% >/dev/null 2>&1 || light -A 5 >/dev/null 2>&1 || true"], refresh = "backlight" }
+"scroll_down" = { command = "sh", args = ["-c", "brightnessctl set 5%- >/dev/null 2>&1 || light -U 5 >/dev/null 2>&1 || true"], refresh = "backlight" }

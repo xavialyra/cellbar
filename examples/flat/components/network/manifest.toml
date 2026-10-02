@@ -1,0 +1,30 @@
+[provider]
+program = "./run.sh"
+args = [
+    "--online-icon", "${setting.online_icon}",
+    "--offline-icon", "${setting.offline_icon}",
+    "--ethernet-icon", "${setting.ethernet_icon}",
+    "--wifi-icons", "${setting.wifi_icons}",
+    "--scope-style", "${setting.scope_style}",
+    "--icon-style", "${setting.icon_style}",
+    "--show-speed", "${setting.show_speed}",
+    "--event", "${context}",
+]
+timeout = "2s"
+
+[triggers]
+on_activate = true
+every = "2s"
+
+[[triggers.on_netlink]]
+id = "route-state"
+family = "route"
+
+[settings]
+online_icon = "󰤨"
+offline_icon = "󰤭"
+ethernet_icon = "󰈀"
+wifi_icons = "󰤯,󰤟,󰤢,󰤥,󰤨"
+scope_style = ""
+icon_style = "blue"
+show_speed = false

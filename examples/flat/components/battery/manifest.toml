@@ -1,0 +1,11 @@
+[provider]
+expression = 'render(settings.template, { icon: context.data.icon, percent: format_percent(context.data.percent), status: context.data.status })'
+
+[[triggers.on_source]]
+id = "sample"
+source = "battery"
+event = "sample"
+
+[settings]
+template = "[{icon} {percent}](@battery)"
+interval = "30s"

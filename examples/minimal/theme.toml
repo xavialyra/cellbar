@@ -1,0 +1,38 @@
+# Visual configuration shared by all components in the bar.
+[font]
+# Generic family uses the system's default monospace font; no icon font required.
+families = ["monospace"]
+size = 12.0
+# Optional cell geometry adjustments:
+# line_height = 1.2
+# cell_width_adjust = 0
+
+# Named colors referenced below. Hex colors accept an optional alpha byte.
+[colors]
+base = "#181825"
+text = "#cdd6f4"
+subtext = "#a6adc8"
+
+[surface]
+background = "base"
+# Inner padding in logical pixels, independent of layout's markup spacers.
+padding = { horizontal = 8, vertical = 4 }
+# radius = 4
+
+# Default text appearance. Unstyled spans inherit this style.
+[text]
+foreground = "text"
+
+# Named styles are selected in markup: [content](@clock).
+[styles.clock]
+foreground = "text"
+bold = true
+
+[styles.window]
+foreground = "subtext"
+
+[styles.memory]
+foreground = "subtext"
+
+[styles.cpu]
+foreground = "subtext"

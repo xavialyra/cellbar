@@ -1,0 +1,44 @@
+[provider]
+program = "./run.sh"
+args = [
+    "--hide-empty", "${setting.hide_empty}",
+    "--output", "${output}",
+    "--scope-style", "${setting.scope_style}",
+    "--active-style", "${setting.active_style}",
+    "--active-pad", "${setting.active_pad}",
+    "--format", "${setting.format}",
+    "--active-icon", "${setting.active_icon}",
+    "--inactive-icon", "${setting.inactive_icon}",
+    "--skipped-icon", "${setting.skipped_icon}",
+    "--skipped-style", "${setting.skipped_style}",
+]
+timeout = "2s"
+
+[triggers]
+on_activate = true
+every = "5m"
+
+[[triggers.on_wayland]]
+id = "active-workspaces"
+event = "workspace"
+
+[[triggers.on_wayland]]
+id = "window-workspaces"
+event = "toplevel"
+
+[settings]
+hide_empty = true
+scope_style = ""
+active_style = "accent"
+active_pad = true
+format = "numbers"
+active_icon = "●"
+inactive_icon = "○"
+skipped_icon = "·"
+skipped_style = "ws_skipped"
+
+[actions]
+"click:ws:*" = { command = "./run.sh", args = ["--action", "view,${target}"] }
+"right_click:ws:*" = { command = "./run.sh", args = ["--action", "toggle,${target}"] }
+"scroll_up" = { command = "./run.sh", args = ["--action", "next"] }
+"scroll_down" = { command = "./run.sh", args = ["--action", "prev"] }

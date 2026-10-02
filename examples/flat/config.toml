@@ -1,0 +1,44 @@
+# Flat status bar: layout in this file, visuals in theme.toml, and component
+# behavior/settings in components/<name>/manifest.toml.
+# Run from project root: cargo run -- -c examples/flat/config.toml
+#
+# Manual visibility is controlled with `cellbar show`, `cellbar hide`, and
+# `cellbar toggle`.
+
+show = ["top"]
+
+[bar.top]
+theme = "theme.toml"
+position = "top"
+margin = { top = 6, right = 6, bottom = 6, left = 6 }
+left = [
+    "workspaces",
+    "[  ]",
+    # Package update counts depend on the distribution (checkupdates or apt).
+    # "updates",
+    # "[ ]",
+    "idle",
+    "[  ]",
+    "network",
+    "[ │ ](@separator)",
+    "window",
+]
+center = ["clock"]
+right = [
+    # Requires components/tray/cellbar-tray. Cargo builds this helper when
+    # gcc and the systemd/zlib development libraries are available; building
+    # or installing Cellbar alone does not guarantee the helper is present.
+    # Uncomment both entries after confirming the helper exists.
+    # "tray",
+    # "[  ]",
+    "media",
+    "[ │ ](@separator)",
+    # "volume",
+    # "[  ]",
+    "memory",
+    "[  ]",
+    "cpu",
+]
+
+# A second bar is optional. Copy [bar.top], give it another name, and change
+# position = "bottom" when a bottom bar is desired.

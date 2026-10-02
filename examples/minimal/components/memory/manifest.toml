@@ -1,0 +1,18 @@
+# Built-in Linux memory statistics: no external program required.
+# context.data carries used_kib, available_kib, total_kib, and percent.
+# These values come from the latest memory sample, not from [settings].
+# render() replaces {used}/{percent} using the map supplied in the expression.
+[provider]
+expression = 'render(settings.template, { used: format_size(context.data.used_kib), percent: format_percent(context.data.percent) })'
+
+[[triggers.on_source]]
+id = "sample"
+source = "memory"
+event = "sample"
+
+[settings]
+# Available placeholders: {used} and {percent}.
+# Example: template = "[MEM {percent}](@memory)"
+template = "[MEM {used}](@memory)"
+# How frequently to sample memory usage.
+interval = "10s"

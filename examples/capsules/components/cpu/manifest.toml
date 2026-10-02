@@ -1,0 +1,14 @@
+[provider]
+expression = 'render(settings.template, { percent: format_percent(context.data.percent) })'
+
+[[triggers.on_source]]
+id = "sample"
+source = "cpu"
+event = "sample"
+
+[settings]
+template = "#cpu(@pill){ [  ][󰻠 ](@mauve)[{percent}][  ] }"
+interval = "3s"
+
+[actions]
+"click" = "sh -c 't=\"${TERMINAL:-$(command -v footclient || command -v foot || command -v alacritty || command -v kitty || command -v wezterm || command -v ghostty || command -v xterm)}\"; [ -n \"$t\" ] && exec \"$t\" -e btop --filter cpu'"

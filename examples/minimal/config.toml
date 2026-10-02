@@ -1,0 +1,37 @@
+# Minimal Cellbar configuration. No scripts, icons, or desktop applications required.
+# Start with: cellbar
+# Validate with: cellbar check
+# Install the same template: cellbar init
+#
+# This file defines windows and layout only. Visuals belong to theme.toml;
+# component behavior belongs to components/<name>/manifest.toml.
+
+# Initially visible bars. Omit to show all defined bars; [] starts them hidden.
+# Control later with: cellbar show main / hide main / toggle main.
+show = ["main"]
+
+[bar.main]
+# Relative paths resolve from this config's directory.
+theme = "theme.toml"
+# Screen edge: "top" or "bottom". Bars reserve space for desktop windows.
+position = "top"
+# Omit outputs to use every monitor. To select monitors: outputs = ["DP-1"]
+# Optional logical-pixel height; omit to derive it from font and theme padding.
+# height = 28
+# Logical-pixel distances from screen edges.
+# margin = { top = 6, right = 8, bottom = 6, left = 8 }
+
+# Core layout syntax:
+# - "clock" is a component ID and loads components/clock/manifest.toml.
+# - "[text]" is a static text node; plain text must be inside brackets.
+# - "[text](@style)" applies a named theme style.
+# - "[text](@style max=40 min=10 left)" adds text width and alignment.
+# - "[  ]" is a static two-cell spacer; spacing is explicit, never implicit.
+# - "#name{ ... }" creates an interaction target for component output.
+# - "![file.png](2 contain)" embeds a static image node.
+# Static markup can be placed directly in any layout array, for example:
+# left = ["[cellbar](@clock)", "[  ]", "window"]
+# A layout entry is either a component ID or one complete inline markup literal.
+left = ["window"]
+center = ["clock"]
+right = ["memory", "[  ]", "cpu"]

@@ -1,0 +1,24 @@
+[provider]
+expression = '''
+let title = context?.message?.title ?? "";
+title != ""
+    ? (settings.template != ""
+        ? settings.template.replace("{title}", title)
+        : (settings.scope_style != ""
+            ? `#window(@${settings.scope_style}){ [${title}](@${settings.title_style}) }`
+            : `[${title}](@${settings.title_style})`))
+    : settings.empty
+'''
+
+[triggers]
+on_activate = true
+
+[[triggers.on_wayland]]
+id = "active-window"
+event = "toplevel"
+
+[settings]
+template = "[{title}](@window max=50 min=20 left)"
+scope_style = ""
+title_style = "window"
+empty = ""

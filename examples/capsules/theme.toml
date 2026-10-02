@@ -1,0 +1,155 @@
+[font]
+families = [
+    { "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏" = "JetBrainsMono Nerd Font" },
+    "JetBrainsMono Nerd Font",
+    "Noto Sans Mono CJK JP"
+]
+size = 13.0
+cell_width_adjust = 0
+line_height = 1.35
+
+[colors]
+transparent = "#00000000"
+# Translucent dark surface (~80% opacity) for modern frosted-glass capsules
+surface = "#1e1e2ecc"
+mantle = "#181825cc"
+crust = "#11111bcc"
+text = "#cdd6f4"
+subtext = "#a6adc8"
+muted = "#6c7086"
+subtle = "#45475a"
+blue = "#89b4fa"
+mauve = "#cba6f7"
+teal = "#94e2d5"
+peach = "#fab387"
+green = "#a6e3a1"
+red = "#f38ba8"
+yellow = "#f9e2af"
+
+[surface]
+background = "transparent"
+padding = { horizontal = 12, vertical = 0 }
+radius = 0
+
+[text]
+foreground = "text"
+
+# Base pill shell style (modern unified dark floating island)
+[styles.pill]
+foreground = "text"
+background = "surface"
+radius = 16
+
+# Semantic accent colors for icons inside pills
+[styles.blue]
+foreground = "blue"
+bold = true
+
+[styles.mauve]
+foreground = "mauve"
+bold = true
+
+[styles.teal]
+foreground = "teal"
+bold = true
+
+[styles.green]
+foreground = "green"
+bold = true
+
+[styles.peach]
+foreground = "peach"
+bold = true
+
+[styles.yellow]
+foreground = "yellow"
+bold = true
+
+[styles.red]
+foreground = "red"
+bold = true
+
+[styles.subtext]
+foreground = "subtext"
+
+[styles.muted]
+foreground = "muted"
+
+# Global standard styles referenced by providers (workspaces active/urgent, alerts, etc.)
+[styles.accent]
+foreground = "crust"
+background = "blue"
+bold = true
+
+[styles.warning]
+foreground = "crust"
+background = "yellow"
+bold = true
+
+[styles.critical]
+foreground = "crust"
+background = "red"
+bold = true
+
+[styles.success]
+foreground = "crust"
+background = "green"
+
+# Workspaces capsule & active text highlight (no rectangular color block)
+[styles.ws_pill]
+foreground = "text"
+background = "surface"
+radius = 16
+
+[styles.ws_active]
+foreground = "mauve"
+bold = true
+
+[styles.ws_skipped]
+foreground = "subtle"
+
+# Fallback/alternative single-color styles
+[styles.clock]
+foreground = "text"
+background = "surface"
+bold = true
+
+[styles.memory]
+foreground = "text"
+background = "surface"
+
+[styles.cpu]
+foreground = "text"
+background = "surface"
+
+[styles.battery]
+foreground = "text"
+background = "surface"
+
+[styles.network]
+foreground = "text"
+background = "surface"
+
+[styles.volume]
+foreground = "text"
+background = "surface"
+
+[styles.media]
+foreground = "text"
+background = "surface"
+
+[styles.window]
+foreground = "subtext"
+background = "surface"
+
+# Media player capsule
+[styles.player_pill]
+foreground = "text"
+background = "surface"
+radius = 16
+
+[styles.player_btn]
+foreground = "crust"
+background = "peach"
+bold = true
+radius = 4

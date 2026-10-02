@@ -1,0 +1,21 @@
+# Built-in clock: no external program is launched.
+# expression reads settings from [settings] and context from the latest event.
+# Clock events: { source: "clock", event: "tick", data: { timestamp: ... } }.
+# context.data.timestamp is Unix time in seconds, not a formatted string.
+# render() receives {time} explicitly; placeholders do not read context directly.
+[provider]
+expression = 'render(settings.template, { time: strftime(context.data.timestamp, settings.strftime) })'
+
+# Subscribe to the clock data source.
+[[triggers.on_source]]
+id = "tick"
+source = "clock"
+event = "tick"
+
+[settings]
+# strftime format: %H:%M = 24-hour time; add %Y-%m-%d for the date.
+strftime = "%H:%M"
+# {time} is substituted by the expression; @clock refers to theme.toml.
+template = "[{time}](@clock)"
+# Built-in sampling interval, expressed as a duration.
+interval = "30s"
