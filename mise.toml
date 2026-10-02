@@ -1,0 +1,95 @@
+[tools]
+rust = { version = "1.95.0", profile = "minimal", components = ["rustfmt", "clippy"] }
+
+[env]
+RUST_BACKTRACE = "1"
+_.path = [
+  "{{config_root}}/target/release",
+  "{{config_root}}/target/debug",
+]
+
+[tasks.build]
+description = "Build Cellbar (release)"
+run = "cargo build --release"
+
+[tasks.fmt]
+description = "Check Rust formatting"
+run = "cargo fmt --all -- --check"
+
+[tasks.test]
+description = "Run all tests"
+run = "cargo test --all-targets"
+
+[tasks.lint]
+description = "Run Clippy with warnings denied"
+run = "cargo clippy --all-targets --all-features -- -D warnings"
+
+[tasks.config-check]
+description = "Validate the development example configuration"
+run = """
+cargo run -- check examples/flat/config.toml
+cargo run -- check examples/capsules/config.toml
+"""
+
+[tasks.check]
+description = "Run all project checks"
+depends = ["fmt", "test", "lint", "config-check"]
+
+[tasks.memory-dhat]
+description = "Profile Cellbar heap allocations with Cargo-managed DHAT"
+run = """
+set -eu
+cargo build --release --features dhat-heap
+mkdir -p target/memory
+file="target/memory/dhat-heap.json"
+duration="${CELLBAR_MEMORY_DURATION:-60s}"
+rm -f "$file"
+printf 'profiling for %s; stop with SIGINT/SIGTERM to write the profile\\n' "$duration"
+set +e
+timeout --signal=TERM --kill-after=5s "$duration" ./target/release/cellbar -c examples/flat/config.toml
+status=$?
+set -e
+if [ ! -s "$file" ]; then
+  printf 'DHAT profile was not generated: %s\\n' "$file" >&2
+  exit "${status:-1}"
+fi
+printf 'DHAT profile: %s\\n' "$file"
+if [ "$status" -ne 0 ] && [ "$status" -ne 124 ]; then
+  exit "$status"
+fi
+"""
+
+[tasks.memory-rss]
+description = "Record Cellbar RSS/PSS and descendant RSS"
+run = """
+set -eu
+: "${CELLBAR_PID:?set CELLBAR_PID to the main Cellbar PID}"
+interval="${CELLBAR_MEMORY_INTERVAL:-1}"
+output="${CELLBAR_MEMORY_SNAPSHOT_FILE:-$CELLBAR_MEMORY_OUTPUT_DIR/rss.tsv}"
+mkdir -p "$(dirname "$output")"
+printf 'timestamp\\tmain_rss_kb\\tmain_pss_kb\\tdescendant_rss_kb\\n' > "$output"
+while kill -0 "$CELLBAR_PID" 2>/dev/null; do
+  timestamp="$(date --iso-8601=seconds)"
+  main_rss="$(ps -o rss= -p "$CELLBAR_PID" | awk '{print $1 + 0}')"
+  main_pss="$(awk '/^Pss:/ {print $2; exit}' "/proc/$CELLBAR_PID/smaps_rollup" 2>/dev/null || printf '0')"
+  descendant_rss="$(ps -e -o pid=,ppid=,rss= | awk -v root="$CELLBAR_PID" '
+    { parent[$1] = $2; rss[$1] = $3 }
+    END {
+      for (pid in parent) {
+        current = pid
+        while (current in parent && current != root) current = parent[current]
+        if (current == root && pid != root) total += rss[pid]
+      }
+      print total + 0
+    }')"
+  printf '%s\\t%s\\t%s\\t%s\\n' "$timestamp" "$main_rss" "$main_pss" "$descendant_rss" | tee -a "$output"
+  sleep "$interval"
+done
+printf 'RSS profile: %s\\n' "$output"
+"""
+
+[tasks.benchmark]
+description = "Run real-world resource footprint and performance benchmark"
+depends = ["build"]
+run = "python3 scripts/benchmark.py ${CELLBAR_BENCHMARK_CONFIG:-examples/flat/config.toml}"
+
