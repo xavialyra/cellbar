@@ -12,7 +12,7 @@ session whose compositor supports layer-shell.
 Download the pre-compiled binary directly to your local bin path:
 
 ```sh
-curl -sSL https://github.com/xavialyra/cellbar/releases/latest/download/cellbar-linux-x86_64 -o ~/.local/bin/cellbar
+curl -fsSL https://github.com/xavialyra/cellbar/releases/latest/download/cellbar-linux-x86_64 -o ~/.local/bin/cellbar
 chmod +x ~/.local/bin/cellbar
 ```
 

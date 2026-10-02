@@ -29,37 +29,6 @@ Cellbar renders status information onto an explicit character cell grid with sub
 
 ---
 
-## Resource Footprint & Efficiency
-
-Cellbar is built as an ultra-lean, native Wayland layer-shell client. It connects directly to the Wayland protocol and Linux kernel event streams (Netlink sockets, Uevent, and in-process sysfs sampling), eliminating the need for periodic background shell forks (`free`, `cat`, `date`, `awk`).
-
-### Empirical Benchmark (Flat Preset Baseline)
-
-Measured under a live Wayland session (`mango` / wlroots, layer-shell) on Arch Linux (Kernel `7.2.6-arch2-1`, Intel Core i5-14600KF, 2540×32 display):
-
-| Benchmark Metric | Measured Result | Significance |
-| :--- | :--- | :--- |
-| **Executable Binary Size** | **3.27 MB** | Self-contained; links only `libc`, `libm`, `libsystemd` |
-| **Peak Heap Allocation (DHAT)** | **837 KB** | Maximum live heap during execution stays below 1 MB |
-| **Physical Resident Memory (RSS)** | **~8.0 MB** | Total pages mapped in RAM (mostly shared font/OS caches) |
-| **Proportional Set Size (PSS)** | **~4.4 MB** | Actual memory share accounted to Cellbar |
-| **Unique Private Memory (USS)** | **~1.3 MB** | Dedicated unshared private dirty memory |
-| **Steady-State CPU Usage** | **~0.3% – 1.0%** (Single Core) | Majority of sampling seconds register 0.00% CPU |
-| **Involuntary Context Switches** | **~1.0 / sec** | Sleeps in `epoll`; wakes strictly on aligned events |
-| **Background Shell Forks** | **0** | No recurring `free`, `cat`, `date`, or `awk` processes |
-
-Reproduce this benchmark on your machine at any time:
-
-```sh
-mise run benchmark
-# Or run the script directly:
-python3 scripts/benchmark.py examples/flat/config.toml
-```
-
-Heap allocations and process RSS are continuously measured and guarded with integrated profiling tools (see [Development](docs/development.md#memory-analysis)).
-
----
-
 ## Quickstart
 
 ### 1. Installation
@@ -69,13 +38,13 @@ Heap allocations and process RSS are continuously measured and guarded with inte
 Download the pre-compiled binary directly to your local bin path:
 
 ```sh
-curl -sSL https://github.com/xavialyra/cellbar/releases/latest/download/cellbar-linux-x86_64 -o ~/.local/bin/cellbar
+curl -fsSL https://github.com/xavialyra/cellbar/releases/latest/download/cellbar-linux-x86_64 -o ~/.local/bin/cellbar
 chmod +x ~/.local/bin/cellbar
 ```
 
 #### Option B: Build from Source
 
-Requirements: Rust toolchain (1.80+), C compiler (`gcc`), `pkg-config`, `libsystemd`, `libpipewire-0.3`, and `fontconfig`.
+Requirements: Rust toolchain (1.80+), C compiler (`gcc`), `pkg-config`, `libsystemd`, and `libpipewire-0.3`.
 
 ```sh
 # Clone repository
@@ -106,6 +75,37 @@ cellbar
 ```
 
 For more examples and theme ideas, see the presets (`flat` and `capsules`) in the [`examples/`](examples) directory. See the [Quickstart Guide](docs/quickstart.md) for full setup instructions and system dependencies.
+
+---
+
+## Resource Footprint & Efficiency
+
+Cellbar is built as an ultra-lean, native Wayland layer-shell client. It connects directly to the Wayland protocol and Linux kernel event streams (Netlink sockets, Uevent, and in-process sysfs sampling), eliminating the need for periodic background shell forks (`free`, `cat`, `date`, `awk`).
+
+### Empirical Benchmark (Flat Preset Baseline)
+
+Measured under a live Wayland session (`mango` / wlroots, layer-shell) on Arch Linux (Kernel `7.2.6-arch2-1`, Intel Core i5-14600KF, 2540×32 display):
+
+| Benchmark Metric | Measured Result | Significance |
+| :--- | :--- | :--- |
+| **Executable Binary Size** | **3.27 MB** | Self-contained; links only `libc`, `libm`, `libsystemd` |
+| **Peak Heap Allocation (DHAT)** | **837 KB** | Maximum live heap during execution stays below 1 MB |
+| **Physical Resident Memory (RSS)** | **~8.0 MB** | Total pages mapped in RAM (mostly shared font/OS caches) |
+| **Proportional Set Size (PSS)** | **~4.4 MB** | Actual memory share accounted to Cellbar |
+| **Unique Private Memory (USS)** | **~1.3 MB** | Dedicated unshared private dirty memory |
+| **Steady-State CPU Usage** | **~0.3% – 1.0%** (Single Core) | Majority of sampling seconds register 0.00% CPU |
+| **Involuntary Context Switches** | **~1.0 / sec** | Sleeps in `epoll`; wakes strictly on aligned events |
+| **Background Shell Forks** | **0** | No recurring `free`, `cat`, `date`, or `awk` processes |
+
+Reproduce this benchmark on your machine at any time:
+
+```sh
+mise run benchmark
+# Or run the script directly:
+python3 scripts/benchmark.py examples/flat/config.toml
+```
+
+Heap allocations and process RSS are continuously measured and guarded with integrated profiling tools (see [Development](docs/development.md#memory-analysis)).
 
 ---
 
