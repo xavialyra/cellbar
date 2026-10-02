@@ -1,0 +1,77 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-release:
+    name: Build and Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential \
+            pkg-config \
+            libpipewire-0.3-dev \
+            libsystemd-dev \
+            zlib1g-dev \
+            fontconfig \
+            fonts-dejavu-core
+
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build release binary
+        run: cargo build --release --locked
+
+      - name: Smoke test release binary
+        run: ./target/release/cellbar --help
+
+      - name: Prepare release archive
+        id: package
+        run: |
+          TAG_NAME="${GITHUB_REF_NAME:-v0.1.0}"
+          ARCHIVE_NAME="cellbar-${TAG_NAME}-x86_64-unknown-linux-gnu"
+          STAGING_DIR="target/staging/${ARCHIVE_NAME}"
+
+          mkdir -p "${STAGING_DIR}"
+          cp target/release/cellbar "${STAGING_DIR}/"
+          if [ -f examples/flat/components/tray/cellbar-tray ]; then
+            cp examples/flat/components/tray/cellbar-tray "${STAGING_DIR}/"
+          fi
+          [ -f README.md ] && cp README.md "${STAGING_DIR}/"
+          [ -f LICENSE ] && cp LICENSE "${STAGING_DIR}/"
+          cp -r examples "${STAGING_DIR}/"
+
+          tar -czvf "target/${ARCHIVE_NAME}.tar.gz" -C target/staging "${ARCHIVE_NAME}"
+          cd target
+          sha256sum "${ARCHIVE_NAME}.tar.gz" > "${ARCHIVE_NAME}.tar.gz.sha256"
+          cd ..
+
+          echo "archive=target/${ARCHIVE_NAME}.tar.gz" >> "$GITHUB_OUTPUT"
+          echo "checksum=target/${ARCHIVE_NAME}.tar.gz.sha256" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            ${{ steps.package.outputs.archive }}
+            ${{ steps.package.outputs.checksum }}
+          generate_release_notes: true
+          draft: false
+          prerelease: false
