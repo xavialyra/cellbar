@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+
+jobs:
+  check:
+    name: Check, Test and Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential \
+            libsystemd-dev \
+            zlib1g-dev
+
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Check code formatting
+        run: cargo fmt --all -- --check
+
+      - name: Run Clippy linter
+        run: cargo clippy --all-targets --all-features -- -D warnings
+
+      - name: Run test suite
+        run: cargo test --all-targets --verbose
+
+      - name: Validate example configurations
+        run: |
+          cargo run -- check examples/flat/config.toml
+          cargo run -- check examples/capsules/config.toml
+
+      - name: Build release binary
+        run: cargo build --release
+
+      - name: Smoke test release binary
+        run: ./target/release/cellbar --help
+
+      - name: Upload release artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cellbar-linux-x86_64
+          path: target/release/cellbar
+          if-no-files-found: error

@@ -1,5 +1,6 @@
 # Cellbar
 
+[![CI](https://github.com/xavialyra/cellbar/actions/workflows/ci.yml/badge.svg)](https://github.com/xavialyra/cellbar/actions/workflows/ci.yml)
 [![Wayland Layer Shell](https://img.shields.io/badge/Wayland-layer--shell-blue.svg)](https://wayland.app/protocols/wlr-layer-shell-unstable-v1)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
