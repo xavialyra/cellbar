@@ -27,7 +27,7 @@ icon = ""
 icons = "󰕿,󰖀,󰕾"
 mute_icon = "󰝟"
 scope_style = ""
-icon_style = "peach"
+icon_style = "subtext"
 
 [actions]
 "click" = "pavucontrol"

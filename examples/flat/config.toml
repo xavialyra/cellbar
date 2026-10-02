@@ -33,6 +33,9 @@ right = [
     # "[  ]",
     "media",
     "[ │ ](@separator)",
+    # Volume component monitors audio events via PipeWire (dlopen libpipewire) and
+    # queries/controls sinks via wpctl. Loading the PipeWire client runtime and
+    # invoking wpctl on changes will slightly increase memory and process footprint.
     # "volume",
     # "[  ]",
     "memory",

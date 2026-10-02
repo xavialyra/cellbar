@@ -84,5 +84,8 @@ foreground = "subtext"
 [styles.cpu]
 foreground = "subtext"
 
+[styles.volume]
+foreground = "subtext"
+
 [styles.ws_skipped]
 foreground = "muted"
