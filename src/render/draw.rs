@@ -115,8 +115,8 @@ pub fn draw_glyph_rect(
 
 pub fn fill(canvas: &mut [u8], color: Rgba) {
     let pixel = premultiplied_argb(color).to_ne_bytes();
-    for chunk in canvas.chunks_exact_mut(4) {
-        chunk.copy_from_slice(&pixel);
+    for chunk in canvas.as_chunks_mut::<4>().0 {
+        *chunk = pixel;
     }
 }
 

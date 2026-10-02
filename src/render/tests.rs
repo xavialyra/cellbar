@@ -416,8 +416,10 @@ fn text_rasterization_changes_background_pixels() {
     let background_pixel = premultiplied_argb(background).to_ne_bytes();
     assert!(
         canvas
-            .chunks_exact(4)
-            .any(|pixel| pixel != background_pixel)
+            .as_chunks::<4>()
+            .0
+            .iter()
+            .any(|pixel| pixel != &background_pixel)
     );
 }
 
@@ -504,9 +506,11 @@ fn grid_rasterization_stays_within_its_cell_at_output_scale() {
     let background_pixel = premultiplied_argb(background).to_ne_bytes();
     let active = origin * 2..(origin + renderer.cell_width()) * 2;
     let changed: Vec<_> = canvas
-        .chunks_exact(4)
+        .as_chunks::<4>()
+        .0
+        .iter()
         .enumerate()
-        .filter(|(_, pixel)| *pixel != background_pixel)
+        .filter(|(_, pixel)| *pixel != &background_pixel)
         .map(|(pixel, _)| pixel % 200_usize)
         .collect();
     assert!(!changed.is_empty());
@@ -591,8 +595,8 @@ fn fullwidth_glyph_uses_both_cells_without_overlapping_next_item() {
     );
     let black = premultiplied_argb(background).to_ne_bytes();
     let mut counts = [0; 8];
-    for (index, pixel) in canvas.chunks_exact(4).enumerate() {
-        if pixel != black {
+    for (index, pixel) in canvas.as_chunks::<4>().0.iter().enumerate() {
+        if pixel != &black {
             counts[(index % (cell_width as usize * 8)) / cell_width as usize] += 1;
         }
     }
@@ -657,8 +661,8 @@ fn mixed_width_text_keeps_cell_positions_with_fallback_fonts() {
     );
     let black = premultiplied_argb(background).to_ne_bytes();
     let mut counts = [0; 8];
-    for (index, pixel) in canvas.chunks_exact(4).enumerate() {
-        if pixel != black {
+    for (index, pixel) in canvas.as_chunks::<4>().0.iter().enumerate() {
+        if pixel != &black {
             counts[(index % width) / cell_width] += 1;
         }
     }
@@ -714,9 +718,11 @@ fn expanded_cells_center_glyphs_at_double_scale() {
         );
         let background_pixel = premultiplied_argb(background).to_ne_bytes();
         canvas
-            .chunks_exact(4)
+            .as_chunks::<4>()
+            .0
+            .iter()
             .enumerate()
-            .filter(|(_, pixel)| *pixel != background_pixel)
+            .filter(|(_, pixel)| *pixel != &background_pixel)
             .map(|(index, _)| index % 200 - (origin * 2) as usize)
             .min()
             .expect("glyph pixels")
@@ -1497,8 +1503,8 @@ fn media_private_use_glyphs_paint_inside_reserved_cells() {
     );
     let black = premultiplied_argb(background).to_ne_bytes();
     let mut counts = [0usize; 2];
-    for (index, pixel) in canvas.chunks_exact(4).enumerate() {
-        if pixel != black {
+    for (index, pixel) in canvas.as_chunks::<4>().0.iter().enumerate() {
+        if pixel != &black {
             counts[(index % width as usize) / cell_width as usize] += 1;
         }
     }

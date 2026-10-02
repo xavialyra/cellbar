@@ -824,8 +824,10 @@ impl Dispatch<ZwlrForeignToplevelHandleV1, ()> for Runtime {
             }
             zwlr_foreign_toplevel_handle_v1::Event::State { state } => {
                 let is_active = state
-                    .chunks_exact(4)
-                    .any(|c| u32::from_ne_bytes(c.try_into().unwrap_or_default()) == 2);
+                    .as_chunks::<4>()
+                    .0
+                    .iter()
+                    .any(|c| u32::from_ne_bytes(*c) == 2);
                 if let Some(tracker) = &mut runtime.toplevel_tracker
                     && let Some(win) = tracker.windows.get_mut(&id)
                 {
@@ -997,8 +999,10 @@ impl Dispatch<ExtWorkspaceHandleV1, ()> for Runtime {
             }
             ext_workspace_handle_v1::Event::Coordinates { coordinates } => {
                 let coords = coordinates
-                    .chunks_exact(4)
-                    .map(|chunk| u32::from_ne_bytes(chunk.try_into().unwrap_or_default()))
+                    .as_chunks::<4>()
+                    .0
+                    .iter()
+                    .map(|chunk| u32::from_ne_bytes(*chunk))
                     .collect();
                 if let Some(ws) = tracker.workspaces.get_mut(&id) {
                     ws.coordinates = coords;
