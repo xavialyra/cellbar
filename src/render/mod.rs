@@ -14,8 +14,7 @@ pub use font::{
     ShapedGlyph, SwashCache, font_cache_id, load_fonts,
 };
 pub use image::{
-    ImageLayout, ImagePaint, ReadyImage, blit_image, collect_images, image_geometry,
-    place_fallback,
+    ImageLayout, ImagePaint, ReadyImage, blit_image, collect_images, image_geometry, place_fallback,
 };
 
 use unicode_segmentation::UnicodeSegmentation;
@@ -155,9 +154,10 @@ pub(crate) fn capsule_runs(frame: &CellFrame) -> Vec<CapsuleRun> {
         let Some(shell) = cell.capsule else {
             continue;
         };
-        if runs.last().is_none_or(|run| {
-            run.end != column || run.shell != shell || run.owner != cell.owner
-        }) {
+        if runs
+            .last()
+            .is_none_or(|run| run.end != column || run.shell != shell || run.owner != cell.owner)
+        {
             runs.push(CapsuleRun {
                 start: column,
                 end: column,
@@ -250,7 +250,11 @@ impl TextRenderer {
             .unwrap_or_else(|| (font_size * 0.6 + cell_width_adjust as f32).ceil().max(1.0) as u32);
         let cell_height = crate::config::cell_height(font_size, line_height);
         let metrics = measure_row_metrics(&font_db, &family, font_size, cell_height);
-        let primary_face = font_db.faces().next().map(|f| f.id).expect("at least one font loaded");
+        let primary_face = font_db
+            .faces()
+            .next()
+            .map(|f| f.id)
+            .expect("at least one font loaded");
         Self {
             font_db,
             lazy_fonts,
@@ -400,11 +404,16 @@ impl TextRenderer {
                     let box_left = x_origin as i64
                         + (run.start as i64 - run.image.index as i64) * cell_width as i64;
                     let box_right = box_left + (run.image.image.width as i64) * cell_width as i64;
-                    let cap_clip = cap_runs.iter().find(|c| run.start >= c.start && run.start < c.end).map(|cap| {
-                        let c_start = x_origin.saturating_add((cap.start as u32).saturating_mul(cell_width));
-                        let c_end = x_origin.saturating_add((cap.end as u32).saturating_mul(cell_width));
-                        (c_start, c_end)
-                    });
+                    let cap_clip = cap_runs
+                        .iter()
+                        .find(|c| run.start >= c.start && run.start < c.end)
+                        .map(|cap| {
+                            let c_start = x_origin
+                                .saturating_add((cap.start as u32).saturating_mul(cell_width));
+                            let c_end = x_origin
+                                .saturating_add((cap.end as u32).saturating_mul(cell_width));
+                            (c_start, c_end)
+                        });
                     let clip = if let Some((c_start, c_end)) = cap_clip {
                         (visible.start.max(box_left.max(0) as u32).max(c_start))
                             ..(visible.end.min(box_right.max(0) as u32).min(c_end))
@@ -506,8 +515,9 @@ impl TextRenderer {
 
         // Pass 2: Paint all glyphs and decorations on top.
         for (run, segment) in runs.iter().zip(&mut prepared.segments) {
-            let (run_placement, run_cell_top, run_cell_bottom) = if let Some(cap) =
-                cap_runs.iter().find(|c| run.start >= c.start && run.start < c.end)
+            let (run_placement, run_cell_top, run_cell_bottom) = if let Some(cap) = cap_runs
+                .iter()
+                .find(|c| run.start >= c.start && run.start < c.end)
             {
                 let start = x_origin.saturating_add((cap.start as u32).saturating_mul(cell_width));
                 let end = x_origin.saturating_add((cap.end as u32).saturating_mul(cell_width));
@@ -539,8 +549,7 @@ impl TextRenderer {
                 };
                 let cell_start =
                     x_origin.saturating_add((column as u32).saturating_mul(cell_width));
-                let cell_end =
-                    x_origin.saturating_add((last as u32).saturating_mul(cell_width));
+                let cell_end = x_origin.saturating_add((last as u32).saturating_mul(cell_width));
                 let first_x = match previous {
                     Some((start, x)) if start == glyph.start => x,
                     _ => glyph.x,
@@ -556,7 +565,9 @@ impl TextRenderer {
 
                 let physical_x = (cell_start as f32 + offset - first_x + glyph.x).round() as i32;
                 let physical_y = baseline.round() as i32;
-                let subpixel_x = ((((cell_start as f32 + offset - first_x + glyph.x).fract() * 4.0).round() as i32).rem_euclid(4)) as u8;
+                let subpixel_x = ((((cell_start as f32 + offset - first_x + glyph.x).fract() * 4.0)
+                    .round() as i32)
+                    .rem_euclid(4)) as u8;
 
                 let key = GlyphKey {
                     font_id: glyph.font_id,
@@ -596,8 +607,7 @@ impl TextRenderer {
                 }
                 let rect_start =
                     x_origin.saturating_add((run.start as u32).saturating_mul(cell_width));
-                let rect_end =
-                    x_origin.saturating_add((run.end as u32).saturating_mul(cell_width));
+                let rect_end = x_origin.saturating_add((run.end as u32).saturating_mul(cell_width));
                 let thickness = ((self.font_size * scale * 0.08).ceil() as u32).max(1);
                 let y = if is_strike {
                     (baseline - (self.cap_height * scale * 0.5)) as i32 + y_offset
@@ -622,27 +632,43 @@ impl TextRenderer {
         }
     }
 
-    pub(crate) fn shape_span(&mut self, text: &str, style: DisplayStyle, _height: u32, scale: u32) -> Vec<ShapedGlyph> {
+    pub(crate) fn shape_span(
+        &mut self,
+        text: &str,
+        style: DisplayStyle,
+        _height: u32,
+        scale: u32,
+    ) -> Vec<ShapedGlyph> {
         let font_size = self.font_size * scale as f32;
         let mapped = self.has_mappings && self.text_matches_mapping(text);
 
         if !mapped {
-            let shaped = self.font_db.with_face_data(self.primary_face, |data, index| {
-                let font_ref = swash::FontRef::from_index(data, index as usize)?;
-                let mut shaper = self
-                    .shape_context
-                    .builder_with_id(font_ref, font_cache_id(self.primary_face, index))
-                    .size(font_size)
-                    .build();
-                shaper.add_str(text);
-                let mut text_glyphs = Vec::new();
-                shaper.shape_with(|c| {
-                    for g in c.glyphs {
-                        text_glyphs.push((g.id, g.advance, g.x, g.y, c.source.start as usize, c.source.end as usize));
-                    }
-                });
-                Some(text_glyphs)
-            }).flatten();
+            let shaped = self
+                .font_db
+                .with_face_data(self.primary_face, |data, index| {
+                    let font_ref = swash::FontRef::from_index(data, index as usize)?;
+                    let mut shaper = self
+                        .shape_context
+                        .builder_with_id(font_ref, font_cache_id(self.primary_face, index))
+                        .size(font_size)
+                        .build();
+                    shaper.add_str(text);
+                    let mut text_glyphs = Vec::new();
+                    shaper.shape_with(|c| {
+                        for g in c.glyphs {
+                            text_glyphs.push((
+                                g.id,
+                                g.advance,
+                                g.x,
+                                g.y,
+                                c.source.start as usize,
+                                c.source.end as usize,
+                            ));
+                        }
+                    });
+                    Some(text_glyphs)
+                })
+                .flatten();
 
             if let Some(shaped_glyphs) = shaped {
                 let missing = shaped_glyphs.iter().any(|(id, ..)| *id == 0);
@@ -661,7 +687,8 @@ impl TextRenderer {
                         });
                         current_x += advance;
                     }
-                    self.lazy_fonts.load_used_styles(&mut self.font_db, &glyphs, style);
+                    self.lazy_fonts
+                        .load_used_styles(&mut self.font_db, &glyphs, style);
                     return glyphs;
                 }
             }
@@ -680,8 +707,16 @@ impl TextRenderer {
                 let family_name = &self.lazy_fonts.families[family_idx];
                 let query = fontdb::Query {
                     families: &[fontdb::Family::Name(family_name)],
-                    weight: if style.bold { fontdb::Weight::BOLD } else { fontdb::Weight::NORMAL },
-                    style: if style.italic { fontdb::Style::Italic } else { fontdb::Style::Normal },
+                    weight: if style.bold {
+                        fontdb::Weight::BOLD
+                    } else {
+                        fontdb::Weight::NORMAL
+                    },
+                    style: if style.italic {
+                        fontdb::Style::Italic
+                    } else {
+                        fontdb::Style::Normal
+                    },
                     ..Default::default()
                 };
                 if let Some(id) = self.font_db.query(&query) {
@@ -692,15 +727,26 @@ impl TextRenderer {
             if chosen_face.is_none() {
                 let primary_query = fontdb::Query {
                     families: &[fontdb::Family::Name(&self.family)],
-                    weight: if style.bold { fontdb::Weight::BOLD } else { fontdb::Weight::NORMAL },
-                    style: if style.italic { fontdb::Style::Italic } else { fontdb::Style::Normal },
+                    weight: if style.bold {
+                        fontdb::Weight::BOLD
+                    } else {
+                        fontdb::Weight::NORMAL
+                    },
+                    style: if style.italic {
+                        fontdb::Style::Italic
+                    } else {
+                        fontdb::Style::Normal
+                    },
                     ..Default::default()
                 };
                 if let Some(id) = self.font_db.query(&primary_query) {
                     let all_covered = cluster.chars().all(|c| {
-                        self.font_db.with_face_data(id, |data, index| {
-                            ttf_parser::Face::parse(data, index).is_ok_and(|f| f.glyph_index(c).is_some())
-                        }).unwrap_or(false)
+                        self.font_db
+                            .with_face_data(id, |data, index| {
+                                ttf_parser::Face::parse(data, index)
+                                    .is_ok_and(|f| f.glyph_index(c).is_some())
+                            })
+                            .unwrap_or(false)
                     });
                     if all_covered {
                         chosen_face = Some(id);
@@ -714,15 +760,26 @@ impl TextRenderer {
                     let family_name = &self.lazy_fonts.families[family_idx];
                     let query = fontdb::Query {
                         families: &[fontdb::Family::Name(family_name)],
-                        weight: if style.bold { fontdb::Weight::BOLD } else { fontdb::Weight::NORMAL },
-                        style: if style.italic { fontdb::Style::Italic } else { fontdb::Style::Normal },
+                        weight: if style.bold {
+                            fontdb::Weight::BOLD
+                        } else {
+                            fontdb::Weight::NORMAL
+                        },
+                        style: if style.italic {
+                            fontdb::Style::Italic
+                        } else {
+                            fontdb::Style::Normal
+                        },
                         ..Default::default()
                     };
                     if let Some(id) = self.font_db.query(&query) {
                         let all_covered = cluster.chars().all(|c| {
-                            self.font_db.with_face_data(id, |data, index| {
-                                ttf_parser::Face::parse(data, index).is_ok_and(|f| f.glyph_index(c).is_some())
-                            }).unwrap_or(false)
+                            self.font_db
+                                .with_face_data(id, |data, index| {
+                                    ttf_parser::Face::parse(data, index)
+                                        .is_ok_and(|f| f.glyph_index(c).is_some())
+                                })
+                                .unwrap_or(false)
                         });
                         if all_covered {
                             chosen_face = Some(id);
@@ -735,29 +792,44 @@ impl TextRenderer {
             let face_id = chosen_face.unwrap_or_else(|| {
                 let query = fontdb::Query {
                     families: &[fontdb::Family::Name(&self.family)],
-                    weight: if style.bold { fontdb::Weight::BOLD } else { fontdb::Weight::NORMAL },
-                    style: if style.italic { fontdb::Style::Italic } else { fontdb::Style::Normal },
+                    weight: if style.bold {
+                        fontdb::Weight::BOLD
+                    } else {
+                        fontdb::Weight::NORMAL
+                    },
+                    style: if style.italic {
+                        fontdb::Style::Italic
+                    } else {
+                        fontdb::Style::Normal
+                    },
                     ..Default::default()
                 };
-                self.font_db.query(&query).or_else(|| self.font_db.faces().next().map(|f| f.id)).expect("at least one font loaded")
+                self.font_db
+                    .query(&query)
+                    .or_else(|| self.font_db.faces().next().map(|f| f.id))
+                    .expect("at least one font loaded")
             });
 
-            let shaped = self.font_db.with_face_data(face_id, |data, index| {
-                let font_ref = swash::FontRef::from_index(data, index as usize)?;
-                let mut shaper = self
-                    .shape_context
-                    .builder_with_id(font_ref, font_cache_id(face_id, index))
-                    .size(font_size)
-                    .build();
-                shaper.add_str(cluster);
-                let mut cluster_glyphs = Vec::new();
-                shaper.shape_with(|c| {
-                    for g in c.glyphs {
-                        cluster_glyphs.push((g.id, g.advance, g.x, g.y));
-                    }
-                });
-                Some(cluster_glyphs)
-            }).flatten().unwrap_or_default();
+            let shaped = self
+                .font_db
+                .with_face_data(face_id, |data, index| {
+                    let font_ref = swash::FontRef::from_index(data, index as usize)?;
+                    let mut shaper = self
+                        .shape_context
+                        .builder_with_id(font_ref, font_cache_id(face_id, index))
+                        .size(font_size)
+                        .build();
+                    shaper.add_str(cluster);
+                    let mut cluster_glyphs = Vec::new();
+                    shaper.shape_with(|c| {
+                        for g in c.glyphs {
+                            cluster_glyphs.push((g.id, g.advance, g.x, g.y));
+                        }
+                    });
+                    Some(cluster_glyphs)
+                })
+                .flatten()
+                .unwrap_or_default();
 
             for (g_id, advance, offset_x, offset_y) in shaped {
                 glyphs.push(ShapedGlyph {
@@ -773,7 +845,8 @@ impl TextRenderer {
             }
         }
 
-        self.lazy_fonts.load_used_styles(&mut self.font_db, &glyphs, style);
+        self.lazy_fonts
+            .load_used_styles(&mut self.font_db, &glyphs, style);
         glyphs
     }
 

@@ -453,10 +453,7 @@ impl WidgetDefinition {
         Vec::new()
     }
 
-    pub fn from_bar_and_config(
-        bar: &crate::config::BarConfig,
-        config: &Config,
-    ) -> Vec<Self> {
+    pub fn from_bar_and_config(bar: &crate::config::BarConfig, config: &Config) -> Vec<Self> {
         let regions = [
             (Region::Left, &bar.left),
             (Region::Center, &bar.center),
@@ -559,11 +556,15 @@ impl WidgetDefinition {
                     let comp_name = display.component.as_deref().unwrap();
                     let base = {
                         let comp_path = config_dir.join("components").join(comp_name);
-                        let parent_comp = config_dir.parent().map(|p| p.join("components").join(comp_name));
+                        let parent_comp = config_dir
+                            .parent()
+                            .map(|p| p.join("components").join(comp_name));
 
                         if comp_path.exists() {
                             comp_path
-                        } else if let Some(p) = parent_comp && p.exists() {
+                        } else if let Some(p) = parent_comp
+                            && p.exists()
+                        {
                             p
                         } else {
                             comp_path
@@ -647,10 +648,7 @@ fn provider_interval(
 ) -> Option<Duration> {
     display_settings
         .get("interval")
-        .or_else(|| {
-            provider_settings
-                .get("interval")
-        })
+        .or_else(|| provider_settings.get("interval"))
         .and_then(toml::Value::as_str)
         .and_then(|value| humantime::parse_duration(value).ok())
         .filter(|duration| !duration.is_zero())
@@ -1071,7 +1069,11 @@ left = ["volume"]
             "scroll_up".into(),
             ActionSpec::Full(crate::config::ActionConfig {
                 command: "wpctl".into(),
-                args: vec!["set-volume".into(), "${setting.device}".into(), "5%+".into()],
+                args: vec![
+                    "set-volume".into(),
+                    "${setting.device}".into(),
+                    "5%+".into(),
+                ],
                 refresh: None,
                 debounce: None,
             }),

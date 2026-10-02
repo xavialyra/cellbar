@@ -569,7 +569,6 @@ pub(crate) fn load_provider(config_dir: &Path, id: &str) -> Result<ProviderConfi
             .parent()
             .map(|p| p.join("components").join(id).join("manifest.toml"))
             .unwrap_or_default(),
-
     ];
     let path = candidates
         .into_iter()
@@ -718,7 +717,11 @@ fn validate_dbus_match_rule(rule: &str) -> bool {
         }
         let is_quoted = (val.starts_with('\'') && val.ends_with('\'') && val.len() >= 2)
             || (val.starts_with('"') && val.ends_with('"') && val.len() >= 2);
-        if !is_quoted && !val.chars().all(|c| c.is_alphanumeric() || c == '_' || c == '-') {
+        if !is_quoted
+            && !val
+                .chars()
+                .all(|c| c.is_alphanumeric() || c == '_' || c == '-')
+        {
             return false;
         }
     }

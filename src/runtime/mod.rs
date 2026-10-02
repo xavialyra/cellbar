@@ -107,7 +107,10 @@ pub(crate) fn build_bar_specs(config: &Config) -> Vec<BarSpec> {
         .filter_map(|bar_id| {
             let bar_cfg = config.bar_definitions.get(&bar_id)?;
             let widget_definitions = WidgetDefinition::from_bar_and_config(bar_cfg, config);
-            let theme = bar_cfg.theme.clone().unwrap_or_else(|| config.theme.clone());
+            let theme = bar_cfg
+                .theme
+                .clone()
+                .unwrap_or_else(|| config.theme.clone());
             let initially_hidden = !config.show.iter().any(|id| id == &bar_id);
             Some(BarSpec {
                 name: Some(bar_id),
@@ -139,8 +142,8 @@ pub fn run(config: Config, config_path: PathBuf) -> Result<(), RuntimeError> {
         .insert(loop_handle.clone())
         .map_err(|error| RuntimeError::EventLoop(error.to_string()))?;
 
-    let control_socket_path =
-        cellbar_control::socket_path().map_err(|error| RuntimeError::ControlSocket(error.to_string()))?;
+    let control_socket_path = cellbar_control::socket_path()
+        .map_err(|error| RuntimeError::ControlSocket(error.to_string()))?;
     let control_socket = bind_control_socket(&control_socket_path)?;
     loop_handle
         .insert_source(
@@ -768,7 +771,9 @@ impl Runtime {
                     bar.dirty = true;
                     let theme = bar.theme.as_ref().unwrap_or(&self.theme);
                     let min_height = theme.cell_height();
-                    let bar_height = bar.height.map_or_else(|| theme.bar_height(), |h| h.max(min_height));
+                    let bar_height = bar
+                        .height
+                        .map_or_else(|| theme.bar_height(), |h| h.max(min_height));
                     bar.logical_height = bar_height;
                     wayland::apply_bar_surface_config(
                         &bar.layer,
@@ -866,7 +871,10 @@ impl Runtime {
                     && spec.position == bar.position
                     && spec.layer == bar.layer_level
                     && (spec.outputs.is_empty()
-                        || spec.outputs.iter().any(|o| o == &bar.output_name || o == "*"))
+                        || spec
+                            .outputs
+                            .iter()
+                            .any(|o| o == &bar.output_name || o == "*"))
             });
             if !still_valid {
                 let removed = self.bars.swap_remove(idx);
@@ -924,7 +932,9 @@ impl Runtime {
             if initially_hidden {
                 bar.auto_hide_deadline = None;
                 bar.pointer_inside = false;
-            } else if let Some(dur) = auto_hide && !bar.pointer_inside {
+            } else if let Some(dur) = auto_hide
+                && !bar.pointer_inside
+            {
                 bar.auto_hide_deadline = Some(Instant::now() + dur);
             }
             if initially_hidden {

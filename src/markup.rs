@@ -396,11 +396,7 @@ pub fn parse_markup(input: &str, base_dir: &Path) -> Result<Vec<MarkupSpan>, Str
 
             if (!id.is_empty() || style_name.is_some()) && j < len && chars[j] == '{' {
                 flush_literal(&mut literal_buf)?;
-                let target = if !id.is_empty() {
-                    Some(id)
-                } else {
-                    None
-                };
+                let target = if !id.is_empty() { Some(id) } else { None };
                 let scope_id = next_scope_id;
                 next_scope_id += 1;
                 scope_stack.push(ScopeContext {

@@ -44,11 +44,7 @@ use crate::{
         },
     },
     interaction::{InteractionEvent, MouseAxis, MouseButton},
-    runtime::{
-        Runtime,
-        bar::Bar,
-        model::WidgetKey,
-    },
+    runtime::{Runtime, bar::Bar, model::WidgetKey},
 };
 
 pub(super) fn apply_bar_surface_config(
@@ -554,7 +550,8 @@ impl LayerShellHandler for Runtime {
 
         let first_configure = !bar.configured;
         bar.configured = true;
-        if first_configure || bar.dirty || previous_size != (bar.logical_width, bar.logical_height) {
+        if first_configure || bar.dirty || previous_size != (bar.logical_width, bar.logical_height)
+        {
             bar.frame_pending = false;
             bar.last_frame = None;
             bar.last_geometry = None;
@@ -660,7 +657,11 @@ impl PointerHandler for Runtime {
                 _ => {}
             }
 
-            let Some(bar_index) = self.bars.iter().position(|b| b.layer.wl_surface() == surface) else {
+            let Some(bar_index) = self
+                .bars
+                .iter()
+                .position(|b| b.layer.wl_surface() == surface)
+            else {
                 continue;
             };
 
@@ -675,7 +676,9 @@ impl PointerHandler for Runtime {
                 PointerEventKind::Leave { .. } => {
                     let bar = &mut self.bars[bar_index];
                     bar.pointer_inside = false;
-                    if let Some(dur) = bar.auto_hide && !bar.hidden {
+                    if let Some(dur) = bar.auto_hide
+                        && !bar.hidden
+                    {
                         bar.auto_hide_deadline = Some(Instant::now() + dur);
                     }
                     self.rearm_tick();

@@ -7,10 +7,7 @@ use std::{
 };
 
 use rustix::fs::{OFlags, fcntl_getfl, fcntl_setfl};
-use smithay_client_toolkit::reexports::calloop::{
-    Interest, Mode, PostAction,
-    generic::Generic,
-};
+use smithay_client_toolkit::reexports::calloop::{Interest, Mode, PostAction, generic::Generic};
 
 use crate::{
     config::substitute_context_placeholder,

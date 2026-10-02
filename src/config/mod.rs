@@ -9,17 +9,16 @@ pub use layout::{
     ActionConfig, ActionSpec, BarConfig, BarLayer, BarMargins, BarPosition, ComponentConfig,
     DisplayAlign, DisplayConfig, LayoutConfig, Region,
 };
+pub(crate) use provider::substitute_context_placeholder;
 pub use provider::{
     DbusTrigger, EventBus, EventSourceKind, ExternalSourceConfig, ExternalSourceManifest,
-    NetlinkTrigger, PipewireTrigger, ProviderConfig, ProviderManifest,
-    SourceEventSpec, SourceScope, SourceTrigger, SubscriptionBus, SubscriptionType, Trigger,
-    TriggerConfig, UeventTrigger, WaylandTrigger,
+    NetlinkTrigger, PipewireTrigger, ProviderConfig, ProviderManifest, SourceEventSpec,
+    SourceScope, SourceTrigger, SubscriptionBus, SubscriptionType, Trigger, TriggerConfig,
+    UeventTrigger, WaylandTrigger,
 };
-pub(crate) use provider::substitute_context_placeholder;
 pub use theme::{
-    ColorParseError, DEFAULT_LINE_HEIGHT, DisplayStyle, FontConfig, FontFamilyEntry,
-    Rgba, StyleConfig, SurfaceConfig, SurfacePadding, Theme,
-    ThemeConfig, cell_height,
+    ColorParseError, DEFAULT_LINE_HEIGHT, DisplayStyle, FontConfig, FontFamilyEntry, Rgba,
+    StyleConfig, SurfaceConfig, SurfacePadding, Theme, ThemeConfig, cell_height,
 };
 
 use std::{
@@ -66,7 +65,11 @@ impl<'de> Deserialize<'de> for Config {
         let root = toml::Value::deserialize(deserializer)?;
         let mut table = match root {
             toml::Value::Table(t) => t,
-            _ => return Err(serde::de::Error::custom("root configuration must be a TOML table")),
+            _ => {
+                return Err(serde::de::Error::custom(
+                    "root configuration must be a TOML table",
+                ));
+            }
         };
 
         let raw_show: Option<Vec<String>> = if let Some(v) = table.remove("show") {
@@ -209,9 +212,7 @@ pub enum ConfigError {
     Parse(#[from] toml::de::Error),
     #[error("configuration validation failed:\n{0}")]
     Validation(ValidationErrors),
-    #[error(
-        "cannot determine the default configuration path: set XDG_CONFIG_HOME or HOME"
-    )]
+    #[error("cannot determine the default configuration path: set XDG_CONFIG_HOME or HOME")]
     MissingConfigDirectory,
 }
 
@@ -219,13 +220,19 @@ impl ConfigError {
     pub fn display_with_path(&self, main_path: &Path) -> String {
         match self {
             ConfigError::Read { source, .. } => {
-                format!("{}: cannot read configuration: {source}", main_path.display())
+                format!(
+                    "{}: cannot read configuration: {source}",
+                    main_path.display()
+                )
             }
             ConfigError::Parse(err) => {
                 format!("{}: invalid TOML: {err}", main_path.display())
             }
             ConfigError::Validation(err) => {
-                format!("{}: configuration validation failed:\n{err}", main_path.display())
+                format!(
+                    "{}: configuration validation failed:\n{err}",
+                    main_path.display()
+                )
             }
             other => format!("{}: {other}", main_path.display()),
         }
@@ -269,18 +276,18 @@ impl Config {
 
         for bar_id in &config.show {
             if !config.bar_definitions.contains_key(bar_id) {
-                return Err(ConfigError::Validation(ValidationErrors(vec![
-                    format!("show lists undefined bar {bar_id:?}"),
-                ])));
+                return Err(ConfigError::Validation(ValidationErrors(vec![format!(
+                    "show lists undefined bar {bar_id:?}"
+                )])));
             }
         }
 
         // Load and cache themes for all defined bars
         for (bar_id, bar) in &mut config.bar_definitions {
             if bar.theme_path.as_os_str().is_empty() {
-                return Err(ConfigError::Validation(ValidationErrors(vec![
-                    format!("bar.{bar_id}: theme must name a theme file"),
-                ])));
+                return Err(ConfigError::Validation(ValidationErrors(vec![format!(
+                    "bar.{bar_id}: theme must name a theme file"
+                )])));
             }
             let resolved_theme_path = resolve_path(directory, &bar.theme_path);
             if !config.loaded_themes.contains_key(&resolved_theme_path) {
@@ -442,9 +449,7 @@ impl Config {
             if bar.theme_path.as_os_str().is_empty() {
                 errors.push(format!("{bar_label}: theme must name a theme file"));
             }
-            if validate_theme
-                && let Some(theme) = &bar.theme
-            {
+            if validate_theme && let Some(theme) = &bar.theme {
                 theme.validate(&mut errors);
             }
             if let Some(height) = bar.height {
@@ -541,7 +546,12 @@ impl Config {
                 }
                 (None, Some(provider), None) => {
                     if referenced.contains(id.as_str()) {
-                        self.validate_provider_use(&mut errors, &label, provider, &display.settings);
+                        self.validate_provider_use(
+                            &mut errors,
+                            &label,
+                            provider,
+                            &display.settings,
+                        );
                     }
                 }
                 (None, None, Some(src)) if display.settings.is_empty() => {

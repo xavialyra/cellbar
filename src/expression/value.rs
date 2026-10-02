@@ -100,7 +100,9 @@ impl DynValue {
                 a.len() == b.len() && a.iter().zip(b.iter()).all(|(x, y)| x.equals(y))
             }
             (DynValue::Map(a), DynValue::Map(b)) => {
-                a.len() == b.len() && a.iter().all(|(k, v)| b.get(k).is_some_and(|bv| v.equals(bv)))
+                a.len() == b.len()
+                    && a.iter()
+                        .all(|(k, v)| b.get(k).is_some_and(|bv| v.equals(bv)))
             }
             _ => false,
         }

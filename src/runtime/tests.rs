@@ -4,13 +4,7 @@ use std::{
     time::{Duration, Instant},
 };
 
-use super::{
-    MAX_TICK_DELAY,
-    bar::Bar,
-    model::*,
-    next_tick_delay_for,
-    sources::SourceMessage,
-};
+use super::{MAX_TICK_DELAY, bar::Bar, model::*, next_tick_delay_for, sources::SourceMessage};
 use crate::{
     config::{Config, EventSourceKind, ProviderConfig, Trigger},
     interaction::{CallAction, InteractionEvent, InteractionRegistry, MouseButton},
@@ -46,10 +40,7 @@ left = ["network"]
             on_activate: true,
             every: Some(Duration::from_secs(30)),
             debounce: Duration::from_millis(50),
-            settings: BTreeMap::from([(
-                "icon".into(),
-                toml::Value::String("net".into()),
-            )]),
+            settings: BTreeMap::from([("icon".into(), toml::Value::String("net".into()))]),
             actions: BTreeMap::new(),
         },
     );
@@ -86,10 +77,7 @@ left = ["command"]
             on_activate: true,
             every: None,
             debounce: Duration::from_millis(50),
-            settings: BTreeMap::from([(
-                "icon".into(),
-                toml::Value::String("!".into()),
-            )]),
+            settings: BTreeMap::from([("icon".into(), toml::Value::String("!".into()))]),
             actions: BTreeMap::new(),
         },
     );
@@ -152,11 +140,13 @@ fn test_workspaces_memory_cpu_click_interactions() {
         match &mut *provider {
             ProviderState::Command(state) => {
                 state.value = "#ws:1{ [1] }[ ]#ws:2{ [[2]](@accent) }".into();
-                state.rich = Some(crate::markup::parse_markup(&state.value, Path::new(".")).unwrap());
+                state.rich =
+                    Some(crate::markup::parse_markup(&state.value, Path::new(".")).unwrap());
             }
             ProviderState::Expression(state) => {
                 state.value = "#ws:1{ [1] }[ ]#ws:2{ [[2]](@accent) }".into();
-                state.rich = Some(crate::markup::parse_markup(&state.value, Path::new(".")).unwrap());
+                state.rich =
+                    Some(crate::markup::parse_markup(&state.value, Path::new(".")).unwrap());
             }
         }
     }
@@ -258,8 +248,7 @@ fn test_workspaces_memory_cpu_click_interactions() {
                 widget_index: owner,
             };
             let click_evt = InteractionEvent::Click(MouseButton::Left);
-            if let Some((binding, target_val)) =
-                registry.lookup(key, click_evt, target.as_deref())
+            if let Some((binding, target_val)) = registry.lookup(key, click_evt, target.as_deref())
             {
                 let resolved = binding.resolve_action(target_val.as_deref());
                 if owner == ws_index
@@ -292,7 +281,10 @@ fn test_workspaces_memory_cpu_click_interactions() {
     assert!(found_mem, "memory click interaction should be resolved");
     assert!(found_cpu, "cpu click interaction should be resolved");
 
-    assert_eq!(bar.widgets[ws_index].text(), "#ws:1{ [1] }[ ]#ws:2{ [[2]](@accent) }");
+    assert_eq!(
+        bar.widgets[ws_index].text(),
+        "#ws:1{ [1] }[ ]#ws:2{ [[2]](@accent) }"
+    );
     bar.widgets[ws_index].pushed_markup =
         Some(crate::markup::parse_markup("[hh]", Path::new(".")).unwrap());
     assert_eq!(bar.widgets[ws_index].text(), "hh");
@@ -301,15 +293,21 @@ fn test_workspaces_memory_cpu_click_interactions() {
         WidgetContent::Provider { .. }
     ));
     bar.widgets[ws_index].pushed_markup = None;
-    assert_eq!(bar.widgets[ws_index].text(), "#ws:1{ [1] }[ ]#ws:2{ [[2]](@accent) }");
+    assert_eq!(
+        bar.widgets[ws_index].text(),
+        "#ws:1{ [1] }[ ]#ws:2{ [[2]](@accent) }"
+    );
 
     std::mem::forget(bar);
 }
 
 #[test]
 fn test_multi_bar_shares_provider_instances() {
+    use crate::runtime::model::{
+        ProcessDefinition, ProviderDefinition, ProviderState, WidgetContent, WidgetDefinition,
+        WidgetDefinitionContent,
+    };
     use std::rc::Rc;
-    use crate::runtime::model::{ProcessDefinition, ProviderDefinition, WidgetDefinition, WidgetDefinitionContent, WidgetContent, ProviderState};
 
     let tray_def = WidgetDefinition {
         id: "tray".into(),
@@ -317,17 +315,19 @@ fn test_multi_bar_shares_provider_instances() {
         min_width: None,
         align: crate::config::DisplayAlign::Left,
         max_width: None,
-        content: WidgetDefinitionContent::Provider(ProviderDefinition::Command(ProcessDefinition {
-            id: "tray".into(),
-            command: vec!["./cellbar-tray".into()],
-            base: PathBuf::from("."),
-            timeout: None,
-            source_interval: None,
-            on_activate: true,
-            every: None,
-            debounce: Duration::from_millis(50),
-            triggers: Vec::new(),
-        })),
+        content: WidgetDefinitionContent::Provider(ProviderDefinition::Command(
+            ProcessDefinition {
+                id: "tray".into(),
+                command: vec!["./cellbar-tray".into()],
+                base: PathBuf::from("."),
+                timeout: None,
+                source_interval: None,
+                on_activate: true,
+                every: None,
+                debounce: Duration::from_millis(50),
+                triggers: Vec::new(),
+            },
+        )),
         actions: Vec::new(),
     };
 
@@ -337,17 +337,19 @@ fn test_multi_bar_shares_provider_instances() {
         min_width: None,
         align: crate::config::DisplayAlign::Left,
         max_width: None,
-        content: WidgetDefinitionContent::Provider(ProviderDefinition::Command(ProcessDefinition {
-            id: "workspaces".into(),
-            command: vec!["./ws.sh".into(), "${output}".into()],
-            base: PathBuf::from("."),
-            timeout: None,
-            source_interval: None,
-            on_activate: true,
-            every: None,
-            debounce: Duration::from_millis(50),
-            triggers: Vec::new(),
-        })),
+        content: WidgetDefinitionContent::Provider(ProviderDefinition::Command(
+            ProcessDefinition {
+                id: "workspaces".into(),
+                command: vec!["./ws.sh".into(), "${output}".into()],
+                base: PathBuf::from("."),
+                timeout: None,
+                source_interval: None,
+                on_activate: true,
+                every: None,
+                debounce: Duration::from_millis(50),
+                triggers: Vec::new(),
+            },
+        )),
         actions: Vec::new(),
     };
 
@@ -365,11 +367,27 @@ fn test_multi_bar_shares_provider_instances() {
     let bar3_widgets = runtime.instantiate_bar_widgets(&defs, "HDMI-A-1");
 
     // 1. Verify global widget (tray) shares the exact same Rc instance across ALL bars
-    let (WidgetContent::Provider { state: tray1, .. }, WidgetContent::Provider { state: tray2, .. }, WidgetContent::Provider { state: tray3, .. }) =
-        (&bar1_widgets[0].content, &bar2_widgets[0].content, &bar3_widgets[0].content) else { panic!() };
+    let (
+        WidgetContent::Provider { state: tray1, .. },
+        WidgetContent::Provider { state: tray2, .. },
+        WidgetContent::Provider { state: tray3, .. },
+    ) = (
+        &bar1_widgets[0].content,
+        &bar2_widgets[0].content,
+        &bar3_widgets[0].content,
+    )
+    else {
+        panic!()
+    };
 
-    assert!(Rc::ptr_eq(tray1, tray2), "tray on bar1 and bar2 must share same instance");
-    assert!(Rc::ptr_eq(tray1, tray3), "tray across outputs must also share same instance");
+    assert!(
+        Rc::ptr_eq(tray1, tray2),
+        "tray on bar1 and bar2 must share same instance"
+    );
+    assert!(
+        Rc::ptr_eq(tray1, tray3),
+        "tray across outputs must also share same instance"
+    );
 
     // Modifying tray through bar1 must immediately reflect on bar2 and bar3
     if let ProviderState::Command(proc) = &mut *tray1.borrow_mut() {
@@ -380,17 +398,42 @@ fn test_multi_bar_shares_provider_instances() {
     assert_eq!(bar3_widgets[0].text(), "[tray-icon]");
 
     // 2. Verify output-scoped widget (workspaces with ${output})
-    let (WidgetContent::Provider { key: ws1_key, state: ws1 }, WidgetContent::Provider { key: ws2_key, state: ws2 }, WidgetContent::Provider { key: ws3_key, state: ws3 }) =
-        (&bar1_widgets[1].content, &bar2_widgets[1].content, &bar3_widgets[1].content) else { panic!() };
+    let (
+        WidgetContent::Provider {
+            key: ws1_key,
+            state: ws1,
+        },
+        WidgetContent::Provider {
+            key: ws2_key,
+            state: ws2,
+        },
+        WidgetContent::Provider {
+            key: ws3_key,
+            state: ws3,
+        },
+    ) = (
+        &bar1_widgets[1].content,
+        &bar2_widgets[1].content,
+        &bar3_widgets[1].content,
+    )
+    else {
+        panic!()
+    };
 
     assert_eq!(ws1_key.output.as_deref(), Some("DP-1"));
     assert_eq!(ws2_key.output.as_deref(), Some("DP-1"));
     assert_eq!(ws3_key.output.as_deref(), Some("HDMI-A-1"));
 
     // bar1 and bar2 on DP-1 share the same workspaces instance
-    assert!(Rc::ptr_eq(ws1, ws2), "workspaces on same output DP-1 must be shared");
+    assert!(
+        Rc::ptr_eq(ws1, ws2),
+        "workspaces on same output DP-1 must be shared"
+    );
     // bar3 on HDMI-A-1 has its own instance
-    assert!(!Rc::ptr_eq(ws1, ws3), "workspaces on HDMI-A-1 must have separate instance");
+    assert!(
+        !Rc::ptr_eq(ws1, ws3),
+        "workspaces on HDMI-A-1 must have separate instance"
+    );
 
     std::mem::forget(runtime);
 }
@@ -409,8 +452,14 @@ theme = "theme.toml"
     let config = Config::parse(text).expect("valid config");
     let specs = super::build_bar_specs(&config);
     assert_eq!(specs.len(), 2);
-    let active_spec = specs.iter().find(|s| s.name.as_deref() == Some("active")).unwrap();
-    let drawer_spec = specs.iter().find(|s| s.name.as_deref() == Some("drawer")).unwrap();
+    let active_spec = specs
+        .iter()
+        .find(|s| s.name.as_deref() == Some("active"))
+        .unwrap();
+    let drawer_spec = specs
+        .iter()
+        .find(|s| s.name.as_deref() == Some("drawer"))
+        .unwrap();
     assert!(!active_spec.initially_hidden);
     assert!(drawer_spec.initially_hidden);
 }
@@ -455,17 +504,19 @@ fn test_dormant_bars_exclude_provider_keys() {
         min_width: None,
         align: crate::config::DisplayAlign::Right,
         max_width: None,
-        content: WidgetDefinitionContent::Provider(ProviderDefinition::Command(ProcessDefinition {
-            id: "tray".into(),
-            command: vec!["./tray.sh".into()],
-            base: PathBuf::from("."),
-            timeout: None,
-            source_interval: None,
-            on_activate: true,
-            every: None,
-            debounce: Duration::from_millis(50),
-            triggers: Vec::new(),
-        })),
+        content: WidgetDefinitionContent::Provider(ProviderDefinition::Command(
+            ProcessDefinition {
+                id: "tray".into(),
+                command: vec!["./tray.sh".into()],
+                base: PathBuf::from("."),
+                timeout: None,
+                source_interval: None,
+                on_activate: true,
+                every: None,
+                debounce: Duration::from_millis(50),
+                triggers: Vec::new(),
+            },
+        )),
         actions: Vec::new(),
     };
     let defs = vec![tray_def];

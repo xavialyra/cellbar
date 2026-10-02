@@ -188,7 +188,10 @@ fn init(path: Option<PathBuf>) -> Result<(), String> {
             .ok_or_else(|| "cannot determine the XDG Cellbar configuration directory".to_owned())?,
     };
     if path.exists() {
-        return Err(format!("refusing to initialize existing path {}", path.display()));
+        return Err(format!(
+            "refusing to initialize existing path {}",
+            path.display()
+        ));
     }
     fs::create_dir_all(path.join("components/clock"))
         .and_then(|_| fs::create_dir_all(path.join("components/memory")))
@@ -215,7 +218,9 @@ fn print_check_diagnostics(config: &Config, config_path: &Path) {
             let available = if program.contains('/') {
                 Path::new(program).exists()
             } else {
-                env::var_os("PATH").map(|path| env::split_paths(&path).any(|dir| dir.join(program).is_file())).unwrap_or(false)
+                env::var_os("PATH")
+                    .map(|path| env::split_paths(&path).any(|dir| dir.join(program).is_file()))
+                    .unwrap_or(false)
             };
             if !available {
                 eprintln!("warning: component {id}: program not found: {program}");
@@ -235,7 +240,9 @@ const INIT_CPU: &str = include_str!("../examples/minimal/components/cpu/manifest
 const INIT_WINDOW: &str = include_str!("../examples/minimal/components/window/manifest.toml");
 
 fn print_usage() {
-    println!("Cellbar Wayland topbar\n\nUsage:\n  cellbar [-c PATH | PATH]\n  cellbar check [PATH]\n  cellbar init [PATH]\n  cellbar status\n  cellbar list\n  cellbar reload\n  cellbar hide [bar-id]\n  cellbar show [bar-id]\n  cellbar toggle [bar-id]\n  cellbar is-visible <bar-id>\n  cellbar is-hidden <bar-id>\n  cellbar refresh <widget-id>\n  cellbar push <widget-id> <markup>\n  cellbar clear <widget-id>\n  cellbar emit <event-id> [data]\n  cellbar --help");
+    println!(
+        "Cellbar Wayland topbar\n\nUsage:\n  cellbar [-c PATH | PATH]\n  cellbar check [PATH]\n  cellbar init [PATH]\n  cellbar status\n  cellbar list\n  cellbar reload\n  cellbar hide [bar-id]\n  cellbar show [bar-id]\n  cellbar toggle [bar-id]\n  cellbar is-visible <bar-id>\n  cellbar is-hidden <bar-id>\n  cellbar refresh <widget-id>\n  cellbar push <widget-id> <markup>\n  cellbar clear <widget-id>\n  cellbar emit <event-id> [data]\n  cellbar --help"
+    );
 }
 
 #[cfg(test)]
@@ -249,12 +256,21 @@ mod tests {
             fs::remove_dir_all(&root).unwrap();
         }
         run(vec!["init".into(), root.as_os_str().to_owned()]).expect("init command");
-        assert_eq!(fs::read_to_string(root.join("config.toml")).unwrap(), INIT_CONFIG);
-        assert_eq!(fs::read_to_string(root.join("theme.toml")).unwrap(), INIT_THEME);
+        assert_eq!(
+            fs::read_to_string(root.join("config.toml")).unwrap(),
+            INIT_CONFIG
+        );
+        assert_eq!(
+            fs::read_to_string(root.join("theme.toml")).unwrap(),
+            INIT_THEME
+        );
         let config = Config::load(root.join("config.toml")).expect("generated config validates");
         assert_eq!(config.components.len(), 4);
         assert!(run(vec!["init".into(), root.as_os_str().to_owned()]).is_err());
-        assert_eq!(fs::read_to_string(root.join("config.toml")).unwrap(), INIT_CONFIG);
+        assert_eq!(
+            fs::read_to_string(root.join("config.toml")).unwrap(),
+            INIT_CONFIG
+        );
         fs::remove_dir_all(root).unwrap();
     }
 }

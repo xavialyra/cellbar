@@ -12,26 +12,14 @@ fn main() {
     let lib_path = out_dir.join("libpipewire-0.3.a");
 
     let status = Command::new("gcc")
-        .args([
-            "-c",
-            "-O2",
-            "-fPIC",
-            "src/events/pipewire_dlopen.c",
-            "-o",
-        ])
+        .args(["-c", "-O2", "-fPIC", "src/events/pipewire_dlopen.c", "-o"])
         .arg(&obj_path)
         .status()
         .expect("failed to compile pipewire_dlopen.c");
     assert!(status.success(), "compilation of pipewire_dlopen.c failed");
 
     let status = Command::new("gcc")
-        .args([
-            "-c",
-            "-O2",
-            "-fPIC",
-            "src/events/dbus_sdbus.c",
-            "-o",
-        ])
+        .args(["-c", "-O2", "-fPIC", "src/events/dbus_sdbus.c", "-o"])
         .arg(&dbus_obj_path)
         .status()
         .expect("failed to compile dbus_sdbus.c");

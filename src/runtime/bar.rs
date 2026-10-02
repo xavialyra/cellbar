@@ -14,7 +14,9 @@ use wayland_client::{
 };
 
 use crate::{
-    cell_frame::{CapsuleShell, CellFrame, RichRegions, RichSpan, layout_rich_regions, text_cell_width},
+    cell_frame::{
+        CapsuleShell, CellFrame, RichRegions, RichSpan, layout_rich_regions, text_cell_width,
+    },
     config::{BarLayer, BarMargins, BarPosition, DisplayAlign, Region, Theme},
     markup::{MarkupPart, MarkupSpan},
     render::{PaintTarget, TextRenderer, capsule_runs},
@@ -426,7 +428,9 @@ impl Bar {
                         }
                     }
                 }
-                self.layer.wl_surface().set_input_region(Some(region.wl_region()));
+                self.layer
+                    .wl_surface()
+                    .set_input_region(Some(region.wl_region()));
             }
         } else {
             self.layer.wl_surface().set_input_region(None);
@@ -611,9 +615,9 @@ mod tests {
 
     #[test]
     fn test_scope_container_resolution() {
-        use std::path::Path;
         use crate::config::{DisplayStyle, Rgba};
         use crate::markup::parse_markup;
+        use std::path::Path;
 
         let pill_bg: Rgba = "#1e1e2e".parse().unwrap();
         let active_bg: Rgba = "#89b4fa".parse().unwrap();
@@ -647,7 +651,8 @@ mod tests {
             },
         );
 
-        let spans = parse_markup("#player(@pill){ [⏮] [ ⏸ ](@active) [⏭] }", Path::new(".")).unwrap();
+        let spans =
+            parse_markup("#player(@pill){ [⏮] [ ⏸ ](@active) [⏭] }", Path::new(".")).unwrap();
         let widgets = vec![WidgetState {
             id: "player".into(),
             region: Region::Center,
@@ -679,9 +684,9 @@ mod tests {
 
     #[test]
     fn test_workspaces_active_highlight_in_scope_container() {
-        use std::path::Path;
         use crate::config::{DisplayStyle, Rgba};
         use crate::markup::parse_markup;
+        use std::path::Path;
 
         let surface_bg: Rgba = "#1e1e2e".parse().unwrap();
         let accent_blue: Rgba = "#89b4fa".parse().unwrap();
@@ -761,7 +766,8 @@ mod tests {
         assert_eq!(regions_raw.left[2].capsule, None);
 
         // Case 2: Workspaces output fully enclosed by a root scope `#workspaces(@ws_pill){ ... }`
-        let markup_pill = "#workspaces(@ws_pill){ #ws:1{ [ 1 ](@ws_active) }[ ](@muted)#ws:2{ [2](@muted) } }";
+        let markup_pill =
+            "#workspaces(@ws_pill){ #ws:1{ [ 1 ](@ws_active) }[ ](@muted)#ws:2{ [2](@muted) } }";
         let spans_pill = parse_markup(markup_pill, Path::new(".")).unwrap();
         let widgets_pill = vec![WidgetState {
             id: "workspaces".into(),
@@ -786,19 +792,25 @@ mod tests {
         }
 
         // Active workspace (index 0: " 1 ") keeps its @ws_active cell highlight!
-        assert_eq!(regions_pill.left[0].part, crate::images::Part::Text(" 1 ".into()));
+        assert_eq!(
+            regions_pill.left[0].part,
+            crate::images::Part::Text(" 1 ".into())
+        );
         assert_eq!(regions_pill.left[0].style.background, Some(accent_blue));
 
         // Inactive workspace (index 2: "2") has cell background None (transparents to container shell)
-        assert_eq!(regions_pill.left[2].part, crate::images::Part::Text("2".into()));
+        assert_eq!(
+            regions_pill.left[2].part,
+            crate::images::Part::Text("2".into())
+        );
         assert_eq!(regions_pill.left[2].style.background, None);
     }
 
     #[test]
     fn test_nested_scope_inset_y_accumulation() {
-        use std::path::Path;
         use crate::config::{DisplayStyle, Rgba};
         use crate::markup::parse_markup;
+        use std::path::Path;
 
         let outer_bg: Rgba = "#313244".parse().unwrap();
         let badge_bg: Rgba = "#cba6f7".parse().unwrap();
@@ -861,15 +873,24 @@ mod tests {
 
         assert_eq!(regions.center.len(), 3);
         // "A" (outer content): background cleared to container shell
-        assert_eq!(regions.center[0].part, crate::images::Part::Text("A".into()));
+        assert_eq!(
+            regions.center[0].part,
+            crate::images::Part::Text("A".into())
+        );
         assert_eq!(regions.center[0].style.background, None);
         // "B" (nested @badge with explicit inset_y=2): accumulated inset_y = 3 + 2 = 5!
-        assert_eq!(regions.center[1].part, crate::images::Part::Text("B".into()));
+        assert_eq!(
+            regions.center[1].part,
+            crate::images::Part::Text("B".into())
+        );
         assert_eq!(regions.center[1].style.background, Some(badge_bg));
         assert_eq!(regions.center[1].style.inset_y, 5);
         assert_eq!(regions.center[1].style.radius, Some(4));
         // "C" (nested @default_h with inset_y=0): inherits outer inset_y = 3 (equal height)!
-        assert_eq!(regions.center[2].part, crate::images::Part::Text("C".into()));
+        assert_eq!(
+            regions.center[2].part,
+            crate::images::Part::Text("C".into())
+        );
         assert_eq!(regions.center[2].style.background, Some(badge_bg));
         assert_eq!(regions.center[2].style.inset_y, 3);
         assert_eq!(regions.center[2].style.radius, None);
@@ -877,9 +898,9 @@ mod tests {
 
     #[test]
     fn test_text_attribute_max_width_preserves_scope_padding() {
-        use std::path::Path;
         use crate::config::{DisplayStyle, Rgba};
         use crate::markup::parse_markup;
+        use std::path::Path;
 
         let pill_bg: Rgba = "#1e1e2e".parse().unwrap();
         let fg: Rgba = "#cdd6f4".parse().unwrap();
@@ -930,7 +951,10 @@ mod tests {
         // Must retain all 3 spans: left padding, truncated title, and right padding!
         assert_eq!(regions.left.len(), 3);
         assert_eq!(regions.left[0].part, crate::images::Part::Text("  ".into()));
-        assert_eq!(regions.left[1].part, crate::images::Part::Text("Very Long…".into()));
+        assert_eq!(
+            regions.left[1].part,
+            crate::images::Part::Text("Very Long…".into())
+        );
         assert_eq!(regions.left[2].part, crate::images::Part::Text("  ".into()));
 
         // All 3 spans belong to the same capsule shell

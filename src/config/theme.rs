@@ -1,8 +1,4 @@
-use std::{
-    collections::BTreeMap,
-    path::Path,
-    str::FromStr,
-};
+use std::{collections::BTreeMap, path::Path, str::FromStr};
 
 use serde::{Deserialize, Deserializer};
 use thiserror::Error;

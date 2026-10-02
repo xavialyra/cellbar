@@ -296,7 +296,13 @@ pub fn fill_rounded_rect(
         for x in start_x..end_x {
             let mut cov = 255u32;
             if bar_radius > 0 {
-                let bar_cov = u32::from(rounded_rect_coverage(x, y, canvas_width, canvas_height, bar_radius));
+                let bar_cov = u32::from(rounded_rect_coverage(
+                    x,
+                    y,
+                    canvas_width,
+                    canvas_height,
+                    bar_radius,
+                ));
                 if bar_cov == 0 {
                     continue;
                 }
@@ -304,7 +310,13 @@ pub fn fill_rounded_rect(
             }
             if capsule_radius > 0 {
                 let local_x = x.saturating_sub(x_range.start);
-                let cap_cov = u32::from(rounded_rect_coverage(local_x, local_y, rect_w, rect_h, capsule_radius));
+                let cap_cov = u32::from(rounded_rect_coverage(
+                    local_x,
+                    local_y,
+                    rect_w,
+                    rect_h,
+                    capsule_radius,
+                ));
                 if cap_cov == 0 {
                     continue;
                 }
@@ -363,13 +375,7 @@ pub fn blend_pixel(pixel: &mut [u8], source: Color) {
     pixel.copy_from_slice(&output.to_ne_bytes());
 }
 
-pub fn blend_pixel_subpixel_gamma(
-    pixel: &mut [u8],
-    fg: Color,
-    cov_r: u8,
-    cov_g: u8,
-    cov_b: u8,
-) {
+pub fn blend_pixel_subpixel_gamma(pixel: &mut [u8], fg: Color, cov_r: u8, cov_g: u8, cov_b: u8) {
     let (fg_r, fg_g, fg_b, fg_a) = fg.as_rgba_tuple();
     if fg_a == 0 || (cov_r == 0 && cov_g == 0 && cov_b == 0) {
         return;
@@ -394,18 +400,14 @@ pub fn blend_pixel_subpixel_gamma(
         let out_r = blend_channel_gamma(fg_r, dst_r, alpha_r);
         let out_g = blend_channel_gamma(fg_g, dst_g, alpha_g);
         let out_b = blend_channel_gamma(fg_b, dst_b, alpha_b);
-        let output = (255u32 << 24)
-            | (u32::from(out_r) << 16)
-            | (u32::from(out_g) << 8)
-            | u32::from(out_b);
+        let output =
+            (255u32 << 24) | (u32::from(out_r) << 16) | (u32::from(out_g) << 8) | u32::from(out_b);
         pixel.copy_from_slice(&output.to_ne_bytes());
         return;
     }
 
-    let avg_alpha =
-        ((u32::from(alpha_r) + u32::from(alpha_g) + u32::from(alpha_b) + 1) / 3) as u8;
-    let out_a =
-        avg_alpha + ((u32::from(dst_a) * (255 - u32::from(avg_alpha)) + 127) / 255) as u8;
+    let avg_alpha = ((u32::from(alpha_r) + u32::from(alpha_g) + u32::from(alpha_b) + 1) / 3) as u8;
+    let out_a = avg_alpha + ((u32::from(dst_a) * (255 - u32::from(avg_alpha)) + 127) / 255) as u8;
     if out_a == 0 {
         return;
     }

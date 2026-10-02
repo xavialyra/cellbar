@@ -19,7 +19,10 @@ use crate::{
     runtime::{
         MAX_TICK_DELAY, Runtime, RuntimeError,
         model::{ProviderKey, ProviderState, WidgetContent},
-        process::{MAX_PROCESS_BYTES_PER_EVENT, MAX_PROCESS_MESSAGE_BYTES, set_nonblocking, terminate_process_group},
+        process::{
+            MAX_PROCESS_BYTES_PER_EVENT, MAX_PROCESS_MESSAGE_BYTES, set_nonblocking,
+            terminate_process_group,
+        },
     },
 };
 

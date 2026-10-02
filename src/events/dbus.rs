@@ -125,13 +125,7 @@ fn run(receiver: Receiver<Command>, event_sender: Sender<Event>) {
                     let c_sub = CString::new(subscription).unwrap_or_default();
                     let c_rule = CString::new(rule).unwrap_or_default();
                     unsafe {
-                        cellbar_dbus_add_match(
-                            ctx,
-                            is_system,
-                            id,
-                            c_sub.as_ptr(),
-                            c_rule.as_ptr(),
-                        );
+                        cellbar_dbus_add_match(ctx, is_system, id, c_sub.as_ptr(), c_rule.as_ptr());
                         cellbar_dbus_wake(ctx);
                     }
                 }
