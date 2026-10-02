@@ -504,7 +504,8 @@ fn grid_rasterization_stays_within_its_cell_at_output_scale() {
         origin,
     );
     let background_pixel = premultiplied_argb(background).to_ne_bytes();
-    let active = origin * 2..(origin + renderer.cell_width()) * 2;
+    // Allow up to 2 pixels of subpixel antialiasing filter bleed across different FreeType versions
+    let active = (origin * 2).saturating_sub(2)..(origin + renderer.cell_width()) * 2 + 2;
     let changed: Vec<_> = canvas
         .as_chunks::<4>()
         .0
