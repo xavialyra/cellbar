@@ -548,7 +548,7 @@ pub fn find_fonts(query: &str, weight: &str, slant: &str) -> Vec<String> {
     }
 
     let Ok(output) = Command::new("fc-match")
-        .args([&pattern, "-f", "%{file}\n"])
+        .args([&pattern, "-f", "%{family}\n%{file}\n"])
         .output()
     else {
         return Vec::new();
@@ -556,8 +556,26 @@ pub fn find_fonts(query: &str, weight: &str, slant: &str) -> Vec<String> {
     if !output.status.success() {
         return Vec::new();
     }
-    let file = String::from_utf8_lossy(&output.stdout).trim().to_owned();
-    let result = if std::path::Path::new(&file).is_file() {
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let mut lines = stdout.lines();
+    let family_str = lines.next().unwrap_or("").trim();
+    let file = lines.next().unwrap_or("").trim().to_owned();
+
+    let is_generic = matches!(
+        query.to_ascii_lowercase().as_str(),
+        "monospace" | "sans-serif" | "sans" | "serif" | "system-ui" | "cursive" | "fantasy"
+    );
+    let matched = if is_generic {
+        true
+    } else {
+        let q = query.to_ascii_lowercase();
+        family_str.split(',').any(|f| {
+            let f_low = f.trim().to_ascii_lowercase();
+            f_low == q || f_low.contains(&q) || q.contains(&f_low)
+        })
+    };
+
+    let result = if matched && std::path::Path::new(&file).is_file() {
         vec![file]
     } else {
         Vec::new()

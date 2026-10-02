@@ -24,7 +24,9 @@ jobs:
             pkg-config \
             libpipewire-0.3-dev \
             libsystemd-dev \
-            zlib1g-dev
+            zlib1g-dev \
+            fontconfig \
+            fonts-dejavu-core
 
       - name: Setup Rust toolchain
         uses: dtolnay/rust-toolchain@stable
