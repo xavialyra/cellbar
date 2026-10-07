@@ -83,7 +83,7 @@ impl Runtime {
         let key = entry.key.clone();
         let trigger_id = entry.manifest_id.clone();
         let context = event.context;
-        let Some(state) = self.providers.get(&key) else {
+        let Some(state) = self.providers.get(&key).cloned() else {
             return;
         };
         let debounce = {
@@ -101,6 +101,21 @@ impl Runtime {
         if debounce.is_zero() {
             if state.borrow_mut().refresh() {
                 self.mark_bars_with_provider_dirty(&key);
+            }
+            let is_due_command = {
+                let state_ref = state.borrow();
+                match &*state_ref {
+                    ProviderState::Command(process) => {
+                        process.child.is_none()
+                            && process
+                                .next_start
+                                .is_some_and(|start| start <= Instant::now())
+                    }
+                    ProviderState::Expression(_) => false,
+                }
+            };
+            if is_due_command && self.visible_provider_keys().contains(&key) {
+                self.spawn_process(&key);
             }
         } else {
             self.schedule_event_debounce(deadline);

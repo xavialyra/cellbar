@@ -264,7 +264,19 @@ impl Runtime {
             self.apply_process_lines(key, &definition, vec![line]);
         }
         self.reap_processes();
-        self.start_due_processes();
+        let should_restart = self.providers.get(key).is_some_and(|state| {
+            let state_ref = state.borrow();
+            let ProviderState::Command(process) = &*state_ref else {
+                return false;
+            };
+            process.child.is_none()
+                && process
+                    .next_start
+                    .is_some_and(|start| start <= Instant::now())
+        });
+        if should_restart {
+            self.spawn_process(key);
+        }
         #[cfg(target_os = "linux")]
         unsafe {
             libc::malloc_trim(0);

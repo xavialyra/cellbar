@@ -868,7 +868,9 @@ impl Dispatch<ZwlrForeignToplevelHandleV1, ()> for Runtime {
                         tracker.active_window = None;
                     }
                     tracker.windows.remove(&id);
-                    tracker.handles.remove(&id);
+                    if let Some(handle) = tracker.handles.remove(&id) {
+                        handle.destroy();
+                    }
                     was_active
                 } else {
                     false
