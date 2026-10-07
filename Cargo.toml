@@ -1,6 +1,6 @@
 [package]
 name = "cellbar"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 default-run = "cellbar"
 description = "A lightweight, terminal-inspired Wayland status bar engineered for performance, precision, and simplicity"
