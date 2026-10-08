@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Multi-compositor workspace support**: Added support for Niri, Hyprland, and Sway compositors.
 
 ### Fixed
+- **Process storm spin & zombie prevention**: Added a 150ms cooldown on event-triggered command restarts to prevent fork storms, properly reaped terminated/timed-out child processes with waitpid to prevent zombie leaks.
+- **Wayland frame callback deadlock protection**: Reset stuck frame_pending state on ticks to prevent the bar from freezing when obscured or occluded by fullscreen windows.
+- **Media and Network script robustness**: Cached media covers by hash to avoid synchronous curl downloads, shortened network timeouts, and used overflow-safe awk math for network speed.
 - **Instant event dispatch**: Fixed delayed execution for event-driven command providers by dispatching ready processes immediately on event receipt.
 - **Event debounce & tick scheduling**: Defaulted event debounce to 0ms for instantaneous reaction and unified delayed timers into the central tick queue, preventing dropped events.
 - **Wayland input region lifecycle**: Ensured custom input regions are kept alive across surface commits.

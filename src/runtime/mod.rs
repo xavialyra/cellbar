@@ -996,6 +996,11 @@ impl Runtime {
 
     pub(super) fn tick(&mut self) -> Duration {
         self.check_auto_hide();
+        for bar in &mut self.bars {
+            if bar.configured && bar.frame_pending && bar.dirty {
+                bar.frame_pending = false;
+            }
+        }
         self.refresh_builtin_sources();
         for index in self.refresh_providers() {
             self.mark_bar_dirty(index);

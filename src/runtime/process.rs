@@ -3,7 +3,7 @@ use std::{
     os::unix::process::CommandExt,
     path::{Path, PathBuf},
     process::{Child, ChildStdout, Command, Stdio},
-    time::Instant,
+    time::{Duration, Instant},
 };
 
 use rustix::fs::{OFlags, fcntl_getfl, fcntl_setfl};
@@ -21,6 +21,7 @@ use crate::{
 
 pub const MAX_PROCESS_MESSAGE_BYTES: usize = 64 * 1024;
 pub const MAX_PROCESS_BYTES_PER_EVENT: usize = 64 * 1024;
+pub const MIN_PROCESS_COOLDOWN: Duration = Duration::from_millis(150);
 
 impl Runtime {
     pub(super) fn start_due_processes(&mut self) {
@@ -376,6 +377,7 @@ impl Runtime {
                 .is_some_and(|(timeout, started)| now.duration_since(started) >= timeout);
             if timed_out {
                 terminate_process_group(child);
+                let _ = child.wait();
                 exited.push((key.clone(), child.id()));
                 continue;
             }
@@ -401,13 +403,16 @@ impl Runtime {
                     continue;
                 };
                 let token = process.source.take();
-                process.child = None;
+                if let Some(mut child) = process.child.take() {
+                    let _ = child.wait();
+                }
                 process.started_at = None;
                 let next_start = if std::mem::take(&mut process.refresh_requested) {
+                    let earliest = now + MIN_PROCESS_COOLDOWN;
                     process
                         .next_start
-                        .filter(|start| *start > now)
-                        .or(Some(now))
+                        .map(|start| start.max(earliest))
+                        .or(Some(earliest))
                 } else {
                     process
                         .definition

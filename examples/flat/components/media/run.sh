@@ -184,29 +184,26 @@ case "$art_url" in
         cache_root=${XDG_CACHE_HOME:-${HOME:-/tmp}/.cache}
         cache_dir=$cache_root/cellbar
         mkdir -p "$cache_dir" 2>/dev/null || true
-        temporary="$cache_dir/media-cover.$$"
-        if { command -v curl >/dev/null 2>&1 \
-            && curl -LfsS --max-time 1.5 "$art_url" -o "$temporary" 2>/dev/null \
-            && [ -s "$temporary" ]; } \
-            || { command -v wget >/dev/null 2>&1 \
-            && wget -q -T 2 -O "$temporary" "$art_url" \
-            && [ -s "$temporary" ]; }; then
-            if command -v cksum >/dev/null 2>&1; then
-                set -- $(cksum < "$temporary")
-                cache_file=$cache_dir/media-cover-$1-$2
-                if [ -f "$cache_file" ]; then
-                    rm -f "$temporary"
-                    touch "$cache_file"
+        url_hash=$(printf '%s' "$art_url" | cksum 2>/dev/null | awk '{print $1 "-" $2}' || true)
+        if [ -n "$url_hash" ] && [ -f "$cache_dir/media-cover-$url_hash" ] && [ -s "$cache_dir/media-cover-$url_hash" ]; then
+            cover="$cache_dir/media-cover-$url_hash"
+        else
+            temporary="$cache_dir/media-cover.$$"
+            if { command -v curl >/dev/null 2>&1 \
+                && curl -LfsS --max-time 0.8 "$art_url" -o "$temporary" 2>/dev/null \
+                && [ -s "$temporary" ]; } \
+                || { command -v wget >/dev/null 2>&1 \
+                && wget -q -T 1 -O "$temporary" "$art_url" \
+                && [ -s "$temporary" ]; }; then
+                if [ -n "$url_hash" ]; then
+                    mv -f "$temporary" "$cache_dir/media-cover-$url_hash" 2>/dev/null || true
+                    cover="$cache_dir/media-cover-$url_hash"
                 else
-                    mv "$temporary" "$cache_file"
+                    rm -f "$temporary"
                 fi
-                cover=$cache_file
-                find "$cache_dir" -maxdepth 1 -name 'media-cover-*' -type f -mmin +1440 -delete 2>/dev/null || true
             else
                 rm -f "$temporary"
             fi
-        else
-            rm -f "$temporary"
         fi
         ;;
 esac
