@@ -251,11 +251,6 @@ impl ProviderConfig {
         if self.every.is_some_and(|duration| duration.is_zero()) {
             errors.push(format!("{label}: triggers.every must be greater than zero"));
         }
-        if self.debounce.is_zero() {
-            errors.push(format!(
-                "{label}: triggers.debounce must be greater than zero"
-            ));
-        }
         if !self.on_activate && self.every.is_none() && self.triggers.is_empty() {
             errors.push(format!(
                 "{label}: requires triggers.on_activate, triggers.every, or an on_* trigger"

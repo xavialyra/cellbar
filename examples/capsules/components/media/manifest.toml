@@ -17,6 +17,7 @@ timeout = "2s"
 [triggers]
 on_activate = true
 every = "30s"
+debounce = "250ms"
 
 [[triggers.on_dbus]]
 id = "mpris-properties"

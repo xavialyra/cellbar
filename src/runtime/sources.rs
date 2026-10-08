@@ -8,9 +8,7 @@ use std::{
 };
 
 use smithay_client_toolkit::reexports::calloop::{
-    Interest, Mode, PostAction, RegistrationToken,
-    generic::Generic,
-    timer::{TimeoutAction, Timer},
+    Interest, Mode, PostAction, RegistrationToken, generic::Generic,
 };
 
 use crate::{
@@ -122,41 +120,8 @@ impl Runtime {
         }
     }
 
-    pub(super) fn schedule_event_debounce(&mut self, deadline: Instant) {
-        let now = Instant::now();
-        if let Some(current_deadline) = self.debounce_deadline
-            && current_deadline <= deadline
-        {
-            return;
-        }
-
-        if let Some(token) = self.debounce_timer.take() {
-            self.loop_handle.remove(token);
-        }
-
-        let delay = deadline.checked_duration_since(now).unwrap_or_default();
-        match self
-            .loop_handle
-            .insert_source(Timer::from_duration(delay), |_, _, runtime| {
-                runtime.debounce_timer = None;
-                runtime.debounce_deadline = None;
-                let next = runtime.tick();
-                // The debounce timer is one-shot. Hand the recomputed wake-up
-                // time back to the main tick timer: two events landing
-                // microseconds apart share this timer, so the later deadline is
-                // not due when it fires and would otherwise be lost until the
-                // next unrelated event.
-                runtime.rearm_tick_to(next);
-                TimeoutAction::Drop
-            }) {
-            Ok(token) => {
-                self.debounce_timer = Some(token);
-                self.debounce_deadline = Some(deadline);
-            }
-            Err(error) => {
-                eprintln!("cellbar: cannot schedule event debounce timer: {error}");
-            }
-        }
+    pub(super) fn schedule_event_debounce(&mut self, _deadline: Instant) {
+        self.rearm_tick();
     }
 
     pub(super) fn sync_event_subscriptions(&mut self) -> Result<(), RuntimeError> {

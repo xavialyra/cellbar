@@ -374,6 +374,7 @@ impl Bar {
             FrameCallbackData(self.layer.wl_surface().clone()),
         );
 
+        let mut _input_region = None;
         if theme.background.alpha < 255 {
             if let Ok(region) = WaylandRegion::new(compositor) {
                 let cell_w = renderer.cell_width();
@@ -431,6 +432,7 @@ impl Bar {
                 self.layer
                     .wl_surface()
                     .set_input_region(Some(region.wl_region()));
+                _input_region = Some(region);
             }
         } else {
             self.layer.wl_surface().set_input_region(None);
@@ -440,6 +442,7 @@ impl Bar {
             format!("cannot attach bar buffer for {}: {error}", self.output_name)
         })?;
         self.layer.commit();
+        drop(_input_region);
         if let Some(last) = &mut self.last_frame {
             std::mem::swap(last, &mut self.frame_scratch);
         } else {

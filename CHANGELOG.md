@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - **Instant event dispatch**: Fixed delayed execution for event-driven command providers by dispatching ready processes immediately on event receipt.
+- **Event debounce & tick scheduling**: Defaulted event debounce to 0ms for instantaneous reaction and unified delayed timers into the central tick queue, preventing dropped events.
+- **Wayland input region lifecycle**: Ensured custom input regions are kept alive across surface commits.
+- **MPRIS storm throttle**: Added 250ms debounce to MPRIS property updates to prevent child process floods during media playback.
 - **Resource leak**: Destroy closed foreign toplevel handles according to Wayland protocol specification.
 - **Process lifecycle isolation**: Removed global sweep dispatch on child EOF in favor of targeted provider resumption.
 

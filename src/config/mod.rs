@@ -40,7 +40,7 @@ use provider::{load_provider, load_source};
 use theme::load_theme;
 
 pub const MAX_CONFIG_BYTES: usize = 1024 * 1024;
-pub const DEFAULT_EVENT_DEBOUNCE: Duration = Duration::from_millis(50);
+pub const DEFAULT_EVENT_DEBOUNCE: Duration = Duration::ZERO;
 
 #[derive(Debug, Clone, Default)]
 pub struct Config {

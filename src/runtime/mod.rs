@@ -292,8 +292,6 @@ pub fn run(config: Config, config_path: PathBuf) -> Result<(), RuntimeError> {
         exit: false,
         failure: None,
         tick_timer: Some(tick_timer),
-        debounce_timer: None,
-        debounce_deadline: None,
     };
     runtime.renderer.images = Some(ImageStore::new(image_sender));
     runtime.sync_event_subscriptions()?;
@@ -380,8 +378,6 @@ struct Runtime {
     exit: bool,
     failure: Option<String>,
     tick_timer: Option<RegistrationToken>,
-    debounce_timer: Option<RegistrationToken>,
-    debounce_deadline: Option<Instant>,
 }
 
 impl Runtime {
@@ -836,10 +832,6 @@ impl Runtime {
         self.stop_all_sources();
         self.stop_all_processes();
         self.providers.clear();
-        if let Some(token) = self.debounce_timer.take() {
-            self.loop_handle.remove(token);
-        }
-        self.debounce_deadline = None;
 
         self.bar_specs = build_bar_specs(&config);
         self.bar_height = config.theme.bar_height();
@@ -1068,10 +1060,6 @@ impl Drop for Runtime {
         self.stop_all_processes();
         self.bars.clear();
         self.unregister_unused_providers();
-        if let Some(token) = self.debounce_timer.take() {
-            self.loop_handle.remove(token);
-        }
-        self.debounce_deadline = None;
         self.stop_event_dispatcher();
         self.stop_netlink_listener();
         self.stop_toplevel_listener();
