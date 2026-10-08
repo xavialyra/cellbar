@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Multi-compositor workspace support**: Added support for Niri, Hyprland, and Sway compositors.
 
 ### Fixed
+- **Wayland bar recreation & event subscription restoration**: Fixed an issue where compositor `closed` layer events destroyed all providers and stopped Netlink, D-Bus, and Wayland trackers without restoring event listeners upon bar recreation, leaving the bar permanently deaf to external events.
+- **Auto-recreate bar on compositor surface close**: When compositors reset layer shell surfaces, `cellbar` now seamlessly recreates the bar and re-subscribes all event dispatchers.
 - **Process storm spin & zombie prevention**: Added a 150ms cooldown on event-triggered command restarts to prevent fork storms, properly reaped terminated/timed-out child processes with waitpid to prevent zombie leaks.
 - **Wayland frame callback deadlock protection**: Reset stuck frame_pending state on ticks to prevent the bar from freezing when obscured or occluded by fullscreen windows.
 - **Media and Network script robustness**: Cached media covers by hash to avoid synchronous curl downloads, shortened network timeouts, and used overflow-safe awk math for network speed.

@@ -293,6 +293,9 @@ impl Runtime {
         if created_any {
             self.rebuild_widget_indices();
             self.rebuild_interaction_registry();
+            if let Err(error) = self.sync_event_subscriptions() {
+                eprintln!("cellbar: cannot sync event subscriptions: {error}");
+            }
             self.sync_sources();
             self.refresh_providers();
             self.start_due_processes();
@@ -505,16 +508,20 @@ impl LayerShellHandler for Runtime {
     fn closed(
         &mut self,
         _connection: &Connection,
-        _queue_handle: &QueueHandle<Self>,
+        queue_handle: &QueueHandle<Self>,
         layer: &LayerSurface,
     ) {
         if let Some(index) = self.bars.iter().position(|bar| &bar.layer == layer) {
             let bar = self.bars.swap_remove(index);
+            let output = bar.output.clone();
             self.unregister_unused_providers();
             self.sync_sources();
             self.rebuild_widget_indices();
             self.rebuild_interaction_registry();
             eprintln!("cellbar: compositor closed bar on {}", bar.output_name);
+            if self.output_state.outputs().any(|o| o == output) {
+                self.create_bar(queue_handle, output);
+            }
         }
     }
 

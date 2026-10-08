@@ -1008,6 +1008,14 @@ impl Runtime {
                 return DEFAULT_TICK_DELAY;
             }
         }
+        for index in 0..self.bars.len() {
+            if self.bars[index].configured
+                && self.bars[index].dirty
+                && !self.bars[index].frame_pending
+            {
+                self.mark_bar_dirty(index);
+            }
+        }
         self.reap_processes();
         self.start_due_processes();
         self.reap_sources();
