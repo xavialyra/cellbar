@@ -62,7 +62,8 @@ calc_speed() {
     dev="$1"
     [ -n "$dev" ] || return 0
     state_file="/tmp/cellbar-net-speed-${dev}.state"
-    now=$(date +%s%N 2>/dev/null || date +%s)
+    now=$(date +%s 2>/dev/null || true)
+    [ -n "$now" ] || return 0
     
     bytes=$(awk -v target="$dev:" '$1 == target { print $2, $10; exit }' /proc/net/dev 2>/dev/null || true)
     if [ -z "$bytes" ]; then
@@ -80,36 +81,27 @@ calc_speed() {
         last_rx=$(printf '%s' "$last_info" | awk '{print $2}')
         
         if [ -n "$last_time" ] && [ -n "$last_rx" ] && [ "$last_time" -gt 0 ] 2>/dev/null; then
-            if [ "${#now}" -gt 10 ] && [ "${#last_time}" -gt 10 ]; then
-                dt_ms=$(( (now - last_time) / 1000000 ))
-                if [ "$dt_ms" -le 0 ]; then dt_ms=1000; fi
-                rx_rate=$(( (cur_rx - last_rx) * 1000 / dt_ms ))
-            else
-                dt=$(( now - last_time ))
-                if [ "$dt" -le 0 ]; then dt=1; fi
-                rx_rate=$(( (cur_rx - last_rx) / dt ))
-            fi
-            
-            if [ "$rx_rate" -lt 0 ]; then rx_rate=0; fi
-            
-            speed_text=$(awk -v r="$rx_rate" 'BEGIN {
-                if (r <= 0) {
+            speed_text=$(awk -v now="$now" -v lt="$last_time" -v cr="$cur_rx" -v lr="$last_rx" 'BEGIN {
+                dt = now - lt
+                if (dt <= 0) dt = 1
+                rx_rate = (cr >= lr) ? (cr - lr) / dt : 0
+                if (rx_rate <= 0) {
                     printf "  0K/s"
-                } else if (r < 102400) {
-                    printf "%3dK/s", int(r / 1024)
-                } else if (r < 1048576) {
-                    printf "%3dK/s", int(r / 1024)
-                } else if (r < 10485760) {
-                    printf "%.1fM/s", r / 1048576
+                } else if (rx_rate < 102400) {
+                    printf "%3dK/s", int(rx_rate / 1024)
+                } else if (rx_rate < 1048576) {
+                    printf "%3dK/s", int(rx_rate / 1024)
+                } else if (rx_rate < 10485760) {
+                    printf "%.1fM/s", rx_rate / 1048576
                 } else {
-                    printf "%3dM/s", int(r / 1048576)
+                    printf "%3dM/s", int(rx_rate / 1048576)
                 }
-            }')
+            }' 2>/dev/null || printf '  0K/s')
         fi
     fi
     
     printf '%s %s %s\n' "$now" "$cur_rx" "$cur_tx" > "$state_file" 2>/dev/null || true
-    printf '%s' "$speed_text"
+    printf '%s' "${speed_text:-  0K/s}"
 }
 
 emit_icon() {

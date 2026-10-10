@@ -293,6 +293,9 @@ impl Runtime {
         if created_any {
             self.rebuild_widget_indices();
             self.rebuild_interaction_registry();
+            if let Err(error) = self.sync_event_subscriptions() {
+                eprintln!("cellbar: cannot sync event subscriptions: {error}");
+            }
             self.sync_sources();
             self.refresh_providers();
             self.start_due_processes();
@@ -505,16 +508,20 @@ impl LayerShellHandler for Runtime {
     fn closed(
         &mut self,
         _connection: &Connection,
-        _queue_handle: &QueueHandle<Self>,
+        queue_handle: &QueueHandle<Self>,
         layer: &LayerSurface,
     ) {
         if let Some(index) = self.bars.iter().position(|bar| &bar.layer == layer) {
             let bar = self.bars.swap_remove(index);
+            let output = bar.output.clone();
             self.unregister_unused_providers();
             self.sync_sources();
             self.rebuild_widget_indices();
             self.rebuild_interaction_registry();
             eprintln!("cellbar: compositor closed bar on {}", bar.output_name);
+            if self.output_state.outputs().any(|o| o == output) {
+                self.create_bar(queue_handle, output);
+            }
         }
     }
 
@@ -1011,19 +1018,30 @@ impl Dispatch<ExtWorkspaceHandleV1, ()> for Runtime {
                 }
             }
             ext_workspace_handle_v1::Event::State { state } => {
+                let mut changed = false;
                 if let Some(ws) = tracker.workspaces.get_mut(&id) {
-                    match state {
-                        wayland_client::WEnum::Value(s) => {
-                            ws.active = s.contains(ext_workspace_handle_v1::State::Active);
-                            ws.urgent = s.contains(ext_workspace_handle_v1::State::Urgent);
-                            ws.hidden = s.contains(ext_workspace_handle_v1::State::Hidden);
-                        }
-                        wayland_client::WEnum::Unknown(v) => {
-                            ws.active = (v & ext_workspace_handle_v1::State::Active.bits()) != 0;
-                            ws.urgent = (v & ext_workspace_handle_v1::State::Urgent.bits()) != 0;
-                            ws.hidden = (v & ext_workspace_handle_v1::State::Hidden.bits()) != 0;
-                        }
+                    let (new_active, new_urgent, new_hidden) = match state {
+                        wayland_client::WEnum::Value(s) => (
+                            s.contains(ext_workspace_handle_v1::State::Active),
+                            s.contains(ext_workspace_handle_v1::State::Urgent),
+                            s.contains(ext_workspace_handle_v1::State::Hidden),
+                        ),
+                        wayland_client::WEnum::Unknown(v) => (
+                            (v & ext_workspace_handle_v1::State::Active.bits()) != 0,
+                            (v & ext_workspace_handle_v1::State::Urgent.bits()) != 0,
+                            (v & ext_workspace_handle_v1::State::Hidden.bits()) != 0,
+                        ),
+                    };
+                    if ws.active != new_active || ws.urgent != new_urgent || ws.hidden != new_hidden
+                    {
+                        ws.active = new_active;
+                        ws.urgent = new_urgent;
+                        ws.hidden = new_hidden;
+                        changed = true;
                     }
+                }
+                if changed {
+                    runtime.dispatch_wayland_workspace_event();
                 }
             }
             ext_workspace_handle_v1::Event::Removed => {
@@ -1034,6 +1052,7 @@ impl Dispatch<ExtWorkspaceHandleV1, ()> for Runtime {
                 for group in tracker.groups.values_mut() {
                     group.workspaces.remove(&id);
                 }
+                runtime.dispatch_wayland_workspace_event();
             }
             _ => {}
         }

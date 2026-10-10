@@ -606,7 +606,7 @@ impl Runtime {
                 return;
             }
             bar.dirty = true;
-            bar.configured && !bar.frame_pending
+            bar.configured
         };
         if should_redraw && let Err(error) = self.redraw_bar(index) {
             self.failure = Some(error);

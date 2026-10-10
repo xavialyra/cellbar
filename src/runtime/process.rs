@@ -376,6 +376,7 @@ impl Runtime {
                 .is_some_and(|(timeout, started)| now.duration_since(started) >= timeout);
             if timed_out {
                 terminate_process_group(child);
+                let _ = child.wait();
                 exited.push((key.clone(), child.id()));
                 continue;
             }
@@ -401,7 +402,9 @@ impl Runtime {
                     continue;
                 };
                 let token = process.source.take();
-                process.child = None;
+                if let Some(mut child) = process.child.take() {
+                    let _ = child.wait();
+                }
                 process.started_at = None;
                 let next_start = if std::mem::take(&mut process.refresh_requested) {
                     process
