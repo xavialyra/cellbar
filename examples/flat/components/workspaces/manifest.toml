@@ -16,7 +16,6 @@ timeout = "2s"
 
 [triggers]
 on_activate = true
-every = "1s"
 
 [[triggers.on_wayland]]
 id = "active-workspaces"
